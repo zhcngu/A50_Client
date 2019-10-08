@@ -1,0 +1,134 @@
+2019-08-31 15:45:34    索引超出了数组界限。
+
+2019-09-07 16:04:50    准备返修数据时异常:无法将类型为“System.String[]”的对象强制转换为类型“System.Byte[]”。
+
+2019-09-09 09:42:49    准备返修数据时异常:在位置 0 处没有任何行。
+
+2019-09-09 09:46:39    准备返修数据时异常:在位置 0 处没有任何行。
+
+2019-09-10 14:56:49    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1257
+
+2019-09-11 10:23:35    准备返修数据时异常:在位置 0 处没有任何行。
+
+2019-09-11 10:24:19    准备返修数据时异常:在位置 0 处没有任何行。
+
+2019-09-11 10:41:32    准备返修数据时异常:在位置 0 处没有任何行。
+
+2019-09-11 10:42:20    准备返修数据时异常:在位置 0 处没有任何行。
+
+2019-09-12 13:24:09    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1250
+
+2019-09-12 13:24:31    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1250
+
+2019-09-12 13:52:35    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1250
+
+2019-09-12 13:52:38    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1250
+
+2019-09-19 11:46:28    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1273
+
+2019-09-19 11:46:34    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1273
+
+2019-09-19 11:51:37    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1273
+
+2019-09-19 11:51:43    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1273
+
+2019-09-19 11:56:20    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1273
+
+2019-09-19 11:56:24    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1273
+
+2019-09-19 12:02:04    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1273
+
+2019-09-19 12:02:08    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1273
+
+2019-09-19 12:03:02    该字符串未被识别为有效的 DateTime。
+
+2019-09-24 12:11:44    索引超出了数组界限。
+
+2019-09-24 12:12:23    索引超出了数组界限。
+
+2019-09-24 12:13:08    索引超出了数组界限。
+
+2019-09-24 12:13:55    索引超出了数组界限。
+
+2019-09-25 15:24:36    索引超出了数组界限。
+
+2019-09-25 15:30:16    对象不能从 DBNull 转换为其他类型。
+
+2019-09-29 15:50:49    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1399
+
+2019-09-29 15:52:20    索引超出了数组界限。
+
+2019-09-29 15:57:52    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1401
+
+2019-09-29 15:57:58    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1401
+
+2019-09-29 16:22:59    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1401
+
+2019-09-29 16:33:53    发送心跳异常:Error receiving response from channel.
+
+2019-09-29 16:35:53    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1401
+
+2019-09-29 16:36:00    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1401
+
+2019-09-29 16:41:01    保存tag数据时候发生异常:值不能为 null。
+参数名: values
+   在 System.String.Join[T](String separator, IEnumerable`1 values)
+   在 OPC_UA_Client_A50.BLL.AnalDataHelper.SaveTagValue(Byte[] dataarray) 位置 C:\公司\OPC_UA_Client_A50\BLL\AnalDataHelper.cs:行号 1401
+

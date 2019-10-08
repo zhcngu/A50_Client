@@ -1,0 +1,14 @@
+C:\公司\OPC_UA_Client_A50\bin\Debug\OPC_UA_Client_A50.exe.config
+C:\公司\OPC_UA_Client_A50\bin\Debug\OPC_UA_Client_A50.exe
+C:\公司\OPC_UA_Client_A50\bin\Debug\OPC_UA_Client_A50.pdb
+C:\公司\OPC_UA_Client_A50\bin\Debug\Opc.Ua.Client.dll
+C:\公司\OPC_UA_Client_A50\bin\Debug\Opc.Ua.Core.dll
+C:\公司\OPC_UA_Client_A50\obj\Debug\OPC_UA_Client_A50.csprojAssemblyReference.cache
+C:\公司\OPC_UA_Client_A50\obj\Debug\OPC_UA_Client_A50.Form1.resources
+C:\公司\OPC_UA_Client_A50\obj\Debug\OPC_UA_Client_A50.ProjectInstaller.resources
+C:\公司\OPC_UA_Client_A50\obj\Debug\OPC_UA_Client_A50.Properties.Resources.resources
+C:\公司\OPC_UA_Client_A50\obj\Debug\OPC_UA_Client_A50.csproj.GenerateResource.cache
+C:\公司\OPC_UA_Client_A50\obj\Debug\OPC_UA_Client_A50.csproj.CoreCompileInputs.cache
+C:\公司\OPC_UA_Client_A50\obj\Debug\OPC_UA_Client_A50.csproj.CopyComplete
+C:\公司\OPC_UA_Client_A50\obj\Debug\OPC_UA_Client_A50.exe
+C:\公司\OPC_UA_Client_A50\obj\Debug\OPC_UA_Client_A50.pdb

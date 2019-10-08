@@ -1,0 +1,93 @@
+2019-07-31 15:22:42 异常消息: 源数组长度不足。请检查 srcIndex 和长度以及数组的下限。
+2019-07-31 15:22:42 堆栈消息:    在 System.Array.Copy(Array sourceArray, Int32 sourceIndex, Array destinationArray, Int32 destinationIndex, Int32 length, Boolean reliable)
+   在 System.Array.Copy(Array sourceArray, Int32 sourceIndex, Array destinationArray, Int32 destinationIndex, Int32 length)
+   在 OPC_UA_Client_A50.Comom.ConverHelper.ByteArrtoFolat(Byte[] srcdatas, Int32 index) 位置 C:\公司\OPC_UA_Client_A50\Comom\ConverHelper.cs:行号 29
+   在 OPC_UA_Client_A50.BLL.OpcBll.CheckOCVTest(Byte[] bytes) 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 199
+   在 OPC_UA_Client_A50.OpcBingEvent.BingEvent.ClientDataChanged(List`1 clientHandleList, List`1 valueList, StationModel stnmodel, BaseProtocol protocol) 位置 C:\公司\OPC_UA_Client_A50\OpcBingEvent\BingEvent.cs:行号 177
+
+2019-07-31 15:23:04 异常消息: 源数组长度不足。请检查 srcIndex 和长度以及数组的下限。
+2019-07-31 15:23:04 堆栈消息:    在 System.Array.Copy(Array sourceArray, Int32 sourceIndex, Array destinationArray, Int32 destinationIndex, Int32 length, Boolean reliable)
+   在 System.Array.Copy(Array sourceArray, Int32 sourceIndex, Array destinationArray, Int32 destinationIndex, Int32 length)
+   在 OPC_UA_Client_A50.Comom.ConverHelper.ByteArrtoFolat(Byte[] srcdatas, Int32 index) 位置 C:\公司\OPC_UA_Client_A50\Comom\ConverHelper.cs:行号 29
+   在 OPC_UA_Client_A50.BLL.OpcBll.CheckOCVTest(Byte[] bytes) 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 199
+   在 OPC_UA_Client_A50.OpcBingEvent.BingEvent.ClientDataChanged(List`1 clientHandleList, List`1 valueList, StationModel stnmodel, BaseProtocol protocol) 位置 C:\公司\OPC_UA_Client_A50\OpcBingEvent\BingEvent.cs:行号 177
+
+2019-07-31 15:23:15 异常消息: 源数组长度不足。请检查 srcIndex 和长度以及数组的下限。
+2019-07-31 15:23:15 堆栈消息:    在 System.Array.Copy(Array sourceArray, Int32 sourceIndex, Array destinationArray, Int32 destinationIndex, Int32 length, Boolean reliable)
+   在 System.Array.Copy(Array sourceArray, Int32 sourceIndex, Array destinationArray, Int32 destinationIndex, Int32 length)
+   在 OPC_UA_Client_A50.Comom.ConverHelper.ByteArrtoFolat(Byte[] srcdatas, Int32 index) 位置 C:\公司\OPC_UA_Client_A50\Comom\ConverHelper.cs:行号 29
+   在 OPC_UA_Client_A50.BLL.OpcBll.CheckOCVTest(Byte[] bytes) 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 199
+   在 OPC_UA_Client_A50.OpcBingEvent.BingEvent.ClientDataChanged(List`1 clientHandleList, List`1 valueList, StationModel stnmodel, BaseProtocol protocol) 位置 C:\公司\OPC_UA_Client_A50\OpcBingEvent\BingEvent.cs:行号 177
+
+2019-07-31 15:43:20 异常消息: 源数组长度不足。请检查 srcIndex 和长度以及数组的下限。
+2019-07-31 15:43:20 堆栈消息:    在 System.Array.Copy(Array sourceArray, Int32 sourceIndex, Array destinationArray, Int32 destinationIndex, Int32 length, Boolean reliable)
+   在 System.Array.Copy(Array sourceArray, Int32 sourceIndex, Array destinationArray, Int32 destinationIndex, Int32 length)
+   在 OPC_UA_Client_A50.Comom.ConverHelper.ByteArrtoFolat(Byte[] srcdatas, Int32 index) 位置 C:\公司\OPC_UA_Client_A50\Comom\ConverHelper.cs:行号 29
+   在 OPC_UA_Client_A50.BLL.OpcBll.CheckOCVTest(Byte[] bytes) 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 199
+   在 OPC_UA_Client_A50.OpcBingEvent.BingEvent.ClientDataChanged(List`1 clientHandleList, List`1 valueList, StationModel stnmodel, BaseProtocol protocol) 位置 C:\公司\OPC_UA_Client_A50\OpcBingEvent\BingEvent.cs:行号 177
+
+2019-07-31 15:43:32 异常消息: 源数组长度不足。请检查 srcIndex 和长度以及数组的下限。
+2019-07-31 15:43:32 堆栈消息:    在 System.Array.Copy(Array sourceArray, Int32 sourceIndex, Array destinationArray, Int32 destinationIndex, Int32 length, Boolean reliable)
+   在 System.Array.Copy(Array sourceArray, Int32 sourceIndex, Array destinationArray, Int32 destinationIndex, Int32 length)
+   在 OPC_UA_Client_A50.Comom.ConverHelper.ByteArrtoFolat(Byte[] srcdatas, Int32 index) 位置 C:\公司\OPC_UA_Client_A50\Comom\ConverHelper.cs:行号 29
+   在 OPC_UA_Client_A50.BLL.OpcBll.CheckOCVTest(Byte[] bytes) 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 199
+   在 OPC_UA_Client_A50.OpcBingEvent.BingEvent.ClientDataChanged(List`1 clientHandleList, List`1 valueList, StationModel stnmodel, BaseProtocol protocol) 位置 C:\公司\OPC_UA_Client_A50\OpcBingEvent\BingEvent.cs:行号 177
+
+2019-07-31 17:06:07 异常消息: 索引和计数必须引用该缓冲区内的位置。
+参数名: bytes
+2019-07-31 17:06:07 堆栈消息:    在 System.Text.ASCIIEncoding.GetString(Byte[] bytes, Int32 byteIndex, Int32 byteCount)
+   在 OPC_UA_Client_A50.Comom.ConverHelper.ByteToString(Byte[] val, Int32 byteIndex, Int32 byteCount) 位置 C:\公司\OPC_UA_Client_A50\Comom\ConverHelper.cs:行号 72
+   在 OPC_UA_Client_A50.BLL.OpcBll.CheckOCVTest(Byte[] bytes) 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 196
+   在 OPC_UA_Client_A50.OpcBingEvent.BingEvent.ClientDataChanged(List`1 clientHandleList, List`1 valueList, StationModel stnmodel, BaseProtocol protocol) 位置 C:\公司\OPC_UA_Client_A50\OpcBingEvent\BingEvent.cs:行号 177
+
+2019-07-31 17:06:12 异常消息: 索引和计数必须引用该缓冲区内的位置。
+参数名: bytes
+2019-07-31 17:06:12 堆栈消息:    在 System.Text.ASCIIEncoding.GetString(Byte[] bytes, Int32 byteIndex, Int32 byteCount)
+   在 OPC_UA_Client_A50.Comom.ConverHelper.ByteToString(Byte[] val, Int32 byteIndex, Int32 byteCount) 位置 C:\公司\OPC_UA_Client_A50\Comom\ConverHelper.cs:行号 72
+   在 OPC_UA_Client_A50.BLL.OpcBll.CheckOCVTest(Byte[] bytes) 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 196
+   在 OPC_UA_Client_A50.OpcBingEvent.BingEvent.ClientDataChanged(List`1 clientHandleList, List`1 valueList, StationModel stnmodel, BaseProtocol protocol) 位置 C:\公司\OPC_UA_Client_A50\OpcBingEvent\BingEvent.cs:行号 177
+
+2019-08-02 14:41:06 异常消息: 源数组长度不足。请检查 srcIndex 和长度以及数组的下限。
+2019-08-02 14:41:06 堆栈消息:    在 System.Array.Copy(Array sourceArray, Int32 sourceIndex, Array destinationArray, Int32 destinationIndex, Int32 length, Boolean reliable)
+   在 System.Array.Copy(Array sourceArray, Int32 sourceIndex, Array destinationArray, Int32 destinationIndex, Int32 length)
+   在 OPC_UA_Client_A50.Comom.ConverHelper.ByteArrtoFolat(Byte[] srcdatas, Int32 index) 位置 C:\公司\OPC_UA_Client_A50\Comom\ConverHelper.cs:行号 29
+   在 OPC_UA_Client_A50.BLL.OpcBll.CheckOCVTest(Byte[] bytes) 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 199
+   在 OPC_UA_Client_A50.OpcBingEvent.BingEvent.ClientDataChanged(List`1 clientHandleList, List`1 valueList, StationModel stnmodel, BaseProtocol protocol) 位置 C:\公司\OPC_UA_Client_A50\OpcBingEvent\BingEvent.cs:行号 177
+
+2019-08-02 14:41:12 异常消息: 源数组长度不足。请检查 srcIndex 和长度以及数组的下限。
+2019-08-02 14:41:12 堆栈消息:    在 System.Array.Copy(Array sourceArray, Int32 sourceIndex, Array destinationArray, Int32 destinationIndex, Int32 length, Boolean reliable)
+   在 System.Array.Copy(Array sourceArray, Int32 sourceIndex, Array destinationArray, Int32 destinationIndex, Int32 length)
+   在 OPC_UA_Client_A50.Comom.ConverHelper.ByteArrtoFolat(Byte[] srcdatas, Int32 index) 位置 C:\公司\OPC_UA_Client_A50\Comom\ConverHelper.cs:行号 29
+   在 OPC_UA_Client_A50.BLL.OpcBll.CheckOCVTest(Byte[] bytes) 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 199
+   在 OPC_UA_Client_A50.OpcBingEvent.BingEvent.ClientDataChanged(List`1 clientHandleList, List`1 valueList, StationModel stnmodel, BaseProtocol protocol) 位置 C:\公司\OPC_UA_Client_A50\OpcBingEvent\BingEvent.cs:行号 177
+
+2019-08-17 10:06:07 异常消息: 未将对象引用设置到对象的实例。
+2019-08-17 10:06:07 堆栈消息:    在 OPC_UA_Client_A50.BLL.ProdDataBll.GetFormulaData(String ptcode, String stncode) 位置 C:\公司\OPC_UA_Client_A50\BLL\ProdDataBll.cs:行号 189
+   在 OPC_UA_Client_A50.BLL.OpcBll.InitDxStnData() 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 115
+   在 OPC_UA_Client_A50.BLL.OpcBll.InitData() 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 37
+   在 OPC_UA_Client_A50.OpcBingEvent.BingEvent.ClientDataChanged(List`1 clientHandleList, List`1 valueList, StationModel stnmodel, BaseProtocol protocol) 位置 C:\公司\OPC_UA_Client_A50\OpcBingEvent\BingEvent.cs:行号 121
+
+2019-08-17 10:06:58 异常消息: 未将对象引用设置到对象的实例。
+2019-08-17 10:06:58 堆栈消息:    在 OPC_UA_Client_A50.BLL.ProdDataBll.GetFormulaData(String ptcode, String stncode) 位置 C:\公司\OPC_UA_Client_A50\BLL\ProdDataBll.cs:行号 189
+   在 OPC_UA_Client_A50.BLL.OpcBll.InitDxStnData() 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 115
+   在 OPC_UA_Client_A50.BLL.OpcBll.InitData() 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 37
+   在 OPC_UA_Client_A50.OpcBingEvent.BingEvent.ClientDataChanged(List`1 clientHandleList, List`1 valueList, StationModel stnmodel, BaseProtocol protocol) 位置 C:\公司\OPC_UA_Client_A50\OpcBingEvent\BingEvent.cs:行号 121
+
+2019-08-17 10:08:28 异常消息: 未将对象引用设置到对象的实例。
+2019-08-17 10:08:28 堆栈消息:    在 OPC_UA_Client_A50.BLL.ProdDataBll.GetFormulaData(String ptcode, String stncode) 位置 C:\公司\OPC_UA_Client_A50\BLL\ProdDataBll.cs:行号 189
+   在 OPC_UA_Client_A50.BLL.OpcBll.InitDxStnData() 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 115
+   在 OPC_UA_Client_A50.BLL.OpcBll.InitData() 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 37
+   在 OPC_UA_Client_A50.OpcBingEvent.BingEvent.ClientDataChanged(List`1 clientHandleList, List`1 valueList, StationModel stnmodel, BaseProtocol protocol) 位置 C:\公司\OPC_UA_Client_A50\OpcBingEvent\BingEvent.cs:行号 121
+
+2019-08-19 10:58:37 异常消息: 列“ComponentPartDescription”不属于表 。
+2019-08-19 10:58:37 堆栈消息:    在 System.Data.DataRow.GetDataColumn(String columnName)
+   在 System.Data.DataRow.get_Item(String columnName)
+   在 OPC_UA_Client_A50.BLL.OpcBll.CheckBom() 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 177
+   在 OPC_UA_Client_A50.OpcBingEvent.BingEvent.ClientDataChanged(List`1 clientHandleList, List`1 valueList, StationModel stnmodel, BaseProtocol protocol) 位置 C:\公司\OPC_UA_Client_A50\OpcBingEvent\BingEvent.cs:行号 152
+
+2019-09-12 13:33:25 异常消息: 索引超出了数组界限。
+2019-09-12 13:33:25 堆栈消息:    在 OPC_UA_Client_A50.BLL.ProdDataBll.GetFormulaData(String ptcode, String stncode) 位置 C:\公司\OPC_UA_Client_A50\BLL\ProdDataBll.cs:行号 272
+   在 OPC_UA_Client_A50.BLL.OpcBll.InitStnData() 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 72
+   在 OPC_UA_Client_A50.BLL.OpcBll.InitData() 位置 C:\公司\OPC_UA_Client_A50\BLL\OpcBll.cs:行号 41
+   在 OPC_UA_Client_A50.OpcBingEvent.BingEvent.ClientDataChanged(List`1 clientHandleList, List`1 valueList, StationModel stnmodel, BaseProtocol protocol) 位置 C:\公司\OPC_UA_Client_A50\OpcBingEvent\BingEvent.cs:行号 121
+
