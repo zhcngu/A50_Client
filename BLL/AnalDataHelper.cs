@@ -40,6 +40,7 @@ namespace OPC_UA_Client_A50.BLL
                 string packID = ConvertHelper.ByteToString(datas, 120, 70);//packid
                 short passmode = ConvertHelper.BytesToShort(datas, 360);//过站信息，0无操作过站，1有操作过站
                 string operatorNum = ConvertHelper.ByteToString(datas, 362, 10);//操作员号
+                int workstatus = datas[453];
                 string devicecode, deviceid;
                 int taotongnum, pronum;
                 byte[] temp = new byte[4];
@@ -56,7 +57,7 @@ namespace OPC_UA_Client_A50.BLL
                 float[,] datamat = new float[datacount, 2];//数据校验矩阵
                 int j = 1;
                 StringBuilder sqlsb = new StringBuilder();
-                sqlsb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],[DetectionAccessory],DetectedResult,TypeGroup) values ");
+                sqlsb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],[DetectionAccessory],DetectedResult,TypeGroup,PassStatus) values ");
                 int deleteRes = DeleteQualitiesData(packID, StnModel.StationCode);
                 int tempindex = 0;
                 if (deleteRes == 0)
@@ -74,8 +75,8 @@ namespace OPC_UA_Client_A50.BLL
                         nmmax = ConvertHelper.ByteArrtoFolat(datas, i + 4 + 4 + 4 + 4);//517
                         nmmin = ConvertHelper.ByteArrtoFolat(datas, i + 4 + 4 + 4 + 4 + 4);//521
                         tempres = ConvertHelper.BytesToShort(datas, i + 4 + 4 + 4 + 4 + 4 + 4);//525
-                        sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','1'),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, nm, nmmax, nmmin, "N·m", deviceid, pronum, taotongnum, tempres);
-                        sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','1'),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, angle, agmax, agmin, "°", deviceid, pronum, taotongnum, tempres);
+                        sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','1','{14}'),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, nm, nmmax, nmmin, "N·m", deviceid, pronum, taotongnum, tempres,workstatus);
+                        sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','1','{14}'),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, angle, agmax, agmin, "°", deviceid, pronum, taotongnum, tempres,workstatus);
                         j += 1;
                         i += 26;
                         tempindex++;
@@ -130,13 +131,14 @@ namespace OPC_UA_Client_A50.BLL
             try
             {
                 #region 基础信息
-                int start = Convert.ToInt32(StnModel.DataAddress);
-                int end = Convert.ToInt32(StnModel.DataLength);
+                int start = Convert.ToInt32(StnModel.DataAddress);//配置文件里面数据地址
+                int end = Convert.ToInt32(StnModel.DataLength);//数据结束地址
                 string ordernum = ConvertHelper.ByteToString(datas, 60, 40);//订单号
                 string partNo = ConvertHelper.ByteToString(datas, 100, 20);//总成物料号
                 string packID = ConvertHelper.ByteToString(datas, 120, 70);//packid
                 short passmode = ConvertHelper.BytesToShort(datas, 360);//过站信息，0无操作过站，1有操作过站
                 string operatorNum = ConvertHelper.ByteToString(datas, 362, 10);//操作员号
+                int workstatus = datas[453];
                 string devicecode, deviceid;
                 int pronum;
                 byte[] temp = new byte[4];
@@ -144,77 +146,89 @@ namespace OPC_UA_Client_A50.BLL
                 deviceid = ConvertHelper.ByteToString(datas, 482, 10);//设备id
                 Array.Copy(datas, 492, temp, 0, 4);
                 pronum = ConvertHelper.ByteArrtoInt(temp);//程序调用号
-                float value, valuemax, valuemin;//60激光清洗  
                 #endregion
+                float value, valuemax, valuemin,speed,speedmax=0,speedmin=0;//60激光清洗  
                 List<float> datalist = new List<float>();//数据校验集合
                 float[,] datamat = new float[26, 1];//数据校验矩阵
                 short tempres;
                 int j = 1;
                 StringBuilder sqlsb = new StringBuilder();
-                sqlsb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],DetectedResult,TypeGroup,PicName) values ");
+                sqlsb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],DetectedResult,TypeGroup,PicName,PassStatus) values ");
                 string picname;
                 int tempindex = 0;
                 for (int i = start; i <= end;)
                 {
-                    tempres = ConvertHelper.BytesToShort(datas, i);//单次的结果
-                    value = ConvertHelper.ByteArrtoFolat(datas, i + 2);//功率
+                    tempres = ConvertHelper.BytesToShort(datas, i+46);//单次的结果
+                    picname = ConvertHelper.ByteToString(datas, i + 16, 30);//图片名字
+                    value = ConvertHelper.ByteArrtoFolat(datas, i );//功率
                     datalist.Add(value);
                     datamat[tempindex, 0] = value;
-                    valuemax = ConvertHelper.ByteArrtoFolat(datas, i + 2 + 4);//功率最大
-                    valuemin = ConvertHelper.ByteArrtoFolat(datas, i + 2 + 4 + 4);//功率最小
-                    picname = ConvertHelper.ByteToString(datas, i + 2 + 4 + 4 + 4, 30);
-                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','13','{13}'),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, value, valuemax, valuemin, "W", deviceid, pronum, tempres, picname);
+                    valuemax = ConvertHelper.ByteArrtoFolat(datas, i+ 4);//功率最大
+                    valuemin = ConvertHelper.ByteArrtoFolat(datas, i + 8);//功率最小
+                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','13','{13}','{14}'),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, value, valuemax, valuemin, "W", deviceid, pronum, tempres, picname,workstatus);
+                    speed = ConvertHelper.ByteArrtoFolat(datas, i + 12);//速度
+                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','13','{13}','{14}'),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, speed, speedmax, speedmin, "mm/s", deviceid, pronum, tempres, picname,workstatus);
+
                     j++;
-                    i += 44;
+                    i += 48;
                     tempindex++;
                 }
-                float value2;
-                float location1, location2;
+                float highValue;
+                float rangeValue, rangeSet;
+
                 //极柱高度以及高度差
 
-                for (int i = 1644; i <= 1886;)
+                for (int i = 1808; i <= 2158;)
                 {
-                    tempres = ConvertHelper.BytesToShort(datas, i+20);//单次的结果
 
-                    location1 = ConvertHelper.ByteArrtoFolat(datas, i);
-                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','8',''),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, location1, 0, 0, "", deviceid, pronum, tempres);
-
-                    value = ConvertHelper.ByteArrtoFolat(datas, i + 4);//1号位极柱高度
-                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','8',''),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, value, 0, 0, "mm", deviceid, pronum, tempres);
-
-                    location2 = ConvertHelper.ByteArrtoFolat(datas, i+8);
-                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','8',''),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, location1, 0, 0, "", deviceid, pronum, tempres);
-
-                    value2 = ConvertHelper.ByteArrtoFolat(datas, i + 12);//2号位极柱高度
-                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','8',''),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, value2, 0, 0, "mm", deviceid, pronum, tempres);
-
-                    value = ConvertHelper.ByteArrtoFolat(datas, i + 16);//高度差
-                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','8',''),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, value, 0, 0, "mm", deviceid, pronum, tempres);
-
+                    tempres = ConvertHelper.BytesToShort(datas, i + 12);//单次的结果
+                    highValue = ConvertHelper.ByteArrtoFolat(datas, i);//1号位极柱高度
+                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','8','','{13}'),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, highValue, 0, 0, "mm", deviceid, pronum, tempres,workstatus);
+                    rangeValue = ConvertHelper.ByteArrtoFolat(datas, i + 4);//极差
+                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','8','','{13}'),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, rangeValue, 0, 0, "mm", deviceid, pronum, tempres,workstatus);
+                    rangeSet = ConvertHelper.ByteArrtoFolat(datas, i + 8);//极差设定值
+                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','8','','{13}'),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, rangeSet, 0, 0, "mm", deviceid, pronum, tempres,workstatus);
                     j++;
-                    i += 22;
+                    i += 14;
                 }
+
                 #region 数据校验
-                if (CheckDataIntegrity(datalist))
+                if (datas[453] == 1)
                 {
-                    bool checkres = CheckDataVaid(StnModel.StationCode, "激光清洗", partNo, datamat);
-                    if (checkres == false)
+                    if (CheckDataIntegrity(datalist))
                     {
-                        return 14;
+                        bool checkres = CheckDataVaid(StnModel.StationCode, "激光清洗", partNo, datamat);
+                        if (checkres == false)
+                        {
+                            return 14;
+                        }
                     }
-                }
-                else
-                {
-                    return 15;
+                    else
+                    {
+                        return 15;
+                    } 
                 }
                 #endregion
                 string sqlstr = sqlsb.ToString().Substring(0, sqlsb.Length - 1);
+                #region 60工位2个mark点照片
+                string markImg1 = ConvertHelper.ByteToString(datas, 2192, 30);
+                short tempresult1 = ConvertHelper.BytesToShort(datas, 2222);
+                string markImg2 = ConvertHelper.ByteToString(datas, 2224, 30);
+                short tempresult2 = ConvertHelper.BytesToShort(datas, 2254);
+                StringBuilder sb2 = new StringBuilder();
+                sb2.AppendFormat("insert into tblSKQImage (SerialNumber,WorkOrderNr,StationCode,EnterStationTime,Location,PicName,PicResult,StationResult,ImgDescription)  values('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}')", packID, ordernum, StnModel.StationCode, DateTime.Now, 1, markImg1, tempresult1, datas[453], "Mark点1图片");
+                sb2.AppendFormat(",('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}')", packID, ordernum, StnModel.StationCode, DateTime.Now, 2, markImg2, tempresult2, datas[453], "Mark点2图片");
+                #endregion
+                List<string> sqllist = new List<string>();
+                sqllist.Add(sqlstr);
+                sqllist.Add(sb2.ToString());
+
                 int deleteRes = DeleteQualitiesData(packID, StnModel.StationCode);//数据覆盖
                 if (deleteRes != 0)
                 {
                     return deleteRes;
                 }
-                int res2 = sqlHelper.ExecNonQuery(sqlstr);
+                int res2 = sqlHelper.ExecNonQuery(sqllist);
                 if (res2 > 0)
                 {
                     return 0;
@@ -249,6 +263,7 @@ namespace OPC_UA_Client_A50.BLL
                 short passmode = ConvertHelper.BytesToShort(datas, 360);//过站信息，0无操作过站，1有操作过站
                 string operatorNum = ConvertHelper.ByteToString(datas, 362, 10);//操作员号
                 string devicecode, deviceid;
+                int workstatus = datas[453];
                 int pronum;
                 byte[] temp = new byte[4];
                 devicecode = ConvertHelper.ByteToString(datas, 472, 10);//设备编号，不存
@@ -259,10 +274,19 @@ namespace OPC_UA_Client_A50.BLL
                 float value, valuemax, valuemin;
                 short tempres;
                 List<float> datalist = new List<float>();//数据完整性检验集合
-                float[,] datamat = new float[13, 3];//数据有效性验证矩阵
+                float[,] datamat;//数据有效性验证矩阵
+                if (StnModel.StationCode=="OP080A")
+                {
+                    datamat = new float[26, 3];//数据有效性验证矩阵
+                }
+                else
+                {
+                    datamat = new float[14, 3];//数据有效性验证矩阵
+                }
+               
                 int j = 1;
                 StringBuilder sqlsb = new StringBuilder();
-                sqlsb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],DetectedResult,TypeGroup) values ");
+                sqlsb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],DetectedResult,TypeGroup,PassStatus) values ");
                 int deleteRes = DeleteQualitiesData(packID, StnModel.StationCode);
                 if (deleteRes == 0)
                 {
@@ -272,37 +296,40 @@ namespace OPC_UA_Client_A50.BLL
                         value = ConvertHelper.ByteArrtoFolat(datas, i + 2);//功率
                         valuemax = ConvertHelper.ByteArrtoFolat(datas, i + 6);//5功率最大
                         valuemin = ConvertHelper.ByteArrtoFolat(datas, i + 10);//511功率最小
-                        sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','3'),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, value, valuemax, valuemin, "W", deviceid, pronum, tempres);
+                        sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','3','{13}'),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, value, valuemax, valuemin, "W", deviceid, pronum, tempres,workstatus);
                         datalist.Add(value);
-                        datamat[i, 0] = value;
+                        datamat[j-1, 0] = value;
                         value = ConvertHelper.ByteArrtoFolat(datas, i + 14);//515保护气流量
                         valuemax = ConvertHelper.ByteArrtoFolat(datas, i + 18);//519气流量最大
                         valuemin = ConvertHelper.ByteArrtoFolat(datas, i + 22);//523气流量最小
-                        sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','3'),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, value, valuemax, valuemin, "L/min", deviceid, pronum, tempres);
+                        sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','3','{13}'),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, value, valuemax, valuemin, "L/min", deviceid, pronum, tempres, workstatus);
                         datalist.Add(value);
-                        datamat[i, 1] = value;
+                        datamat[j-1, 1] = value;
                         value = ConvertHelper.ByteArrtoFolat(datas, i + 26);//527 离焦量测距值
                         valuemax = ConvertHelper.ByteArrtoFolat(datas, i + 30);//531离焦量测距最大
                         valuemin = ConvertHelper.ByteArrtoFolat(datas, i + 34);//534离焦量测距最小
-                        sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','3'),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, value, valuemax, valuemin, "mm", deviceid, pronum, tempres);
+                        sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','3','{13}'),", packID, StnModel.StationCode, ordernum, operatorNum, DateTime.Now, j, value, valuemax, valuemin, "mm", deviceid, pronum, tempres,workstatus);
                         datalist.Add(value);
-                        datamat[i, 2] = value;
+                        datamat[j-1, 2] = value;
                         j++;
                         i += 38;
                     }
                     #region 数据校验
-                    //if (CheckDataIntegrity(datalist))
-                    //{
-                    //    bool checkres = CheckDataVaid(StnModel.StationCode, "激光焊接", partNo, datamat);
-                    //    if (checkres == false)
-                    //    {
-                    //        return 14;
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    return 15;
-                    //}
+                    if (datas[453] == 1)
+                    {
+                        if (CheckDataIntegrity(datalist))
+                        {
+                            bool checkres = CheckDataVaid(StnModel.StationCode, "焊接", partNo, datamat);
+                            if (checkres == false)
+                            {
+                                return 14;
+                            }
+                        }
+                        else
+                        {
+                            return 15;
+                        } 
+                    }
                     #endregion
                     string sqlstr = sqlsb.ToString().Substring(0, sqlsb.Length - 1);
                     int res2 = sqlHelper.ExecNonQuery(sqlstr);
@@ -327,11 +354,82 @@ namespace OPC_UA_Client_A50.BLL
             }
         }
 
+        /// <summary>
+        /// 解析OP090 拍照图片
+        /// </summary>
+        /// <returns></returns>
+        public   int AnalyImageData(byte[] datas)
+        {
+            #region 基础值
+            int start = Convert.ToInt32(StnModel.DataAddress);
+            int end = Convert.ToInt32(StnModel.DataLength);
+            string ordernum = ConvertHelper.ByteToString(datas, 60, 40);//订单号
+            string partNo = ConvertHelper.ByteToString(datas, 100, 20);//总成物料号
+            string packID = ConvertHelper.ByteToString(datas, 120, 70);//packid
+            short passmode = ConvertHelper.BytesToShort(datas, 360);//过站信息，0无操作过站，1有操作过站
+            string operatorNum = ConvertHelper.ByteToString(datas, 362, 10);//操作员号
+            string devicecode, deviceid;
+            int pronum;
+            byte[] temp = new byte[4];
+            devicecode = ConvertHelper.ByteToString(datas, 472, 10);//设备编号，不存
+            deviceid = ConvertHelper.ByteToString(datas, 482, 10);//设备id
+            Array.Copy(datas, 492, temp, 0, 4);
+            pronum = ConvertHelper.ByteArrtoInt(temp);//程序调用号 
+            #endregion
+            int deleteRes = DeleteImageData(packID, StnModel.StationCode);
+            if (deleteRes != 0)
+            {
+                return deleteRes;
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat("insert into tblSKQImage (SerialNumber,WorkOrderNr,StationCode,EnterStationTime,Location,PicName,PicResult,StationResult,ImgDescription) values ");//  values('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}')", packID, ordernum, StnModel.StationCode, DateTime.Now, 1, markImg1, tempresult1, datas[453], "Mark点图片");
+            int location = 1;
+            short tempImgRes = 0;
+            string imgName;
+            string imgDescr = "";
+            for (int i = start; i <= end;)
+            {
+                imgName = ConvertHelper.ByteToString(datas, i, 30);
+                tempImgRes = ConvertHelper.BytesToShort(datas, i + 30);
+                if (location<27)
+                {
+                    imgDescr = "2D相机" + location + "号位拍照";
+                }
+                else
+                {
+                    imgDescr = "3D相机" + (location-26) + "号位拍照";
+                }
+               
+                sb.AppendFormat(" ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}'),", packID, ordernum, StnModel.StationCode, DateTime.Now, location, imgName, tempImgRes, datas[453], imgDescr);
+                location++;
+                i += 32;
+            }
+            string sqlstr = sb.ToString().Substring(0,sb.Length - 1);
+             int  res= sqlHelper.ExecNonQuery(sqlstr);
+            if (res > 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return 10;
+            }
+        }
+
+
         public int AnalData(byte[] bytesarr)
         {
             try
             {
                 int r;
+                if (!StnModel.StationCode.Contains("C"))
+                {
+                    string packidstr = ConvertHelper.ByteToString(bytesarr, 120, 70);
+                    if (String.IsNullOrEmpty(packidstr))
+                    {
+                        return 20;
+                    }
+                }
                 switch (StnModel.StationCode)
                 {
                     case "C-OP020A_1-1":
@@ -364,10 +462,10 @@ namespace OPC_UA_Client_A50.BLL
                     case "C-OP030A_2-3":
                         r = AnalC_OP030Data(bytesarr);
                         break;
-                    case "C-OP040A_1-1":
+                    case "C-OP040A":
                         r = AnalC_OP040Data(bytesarr);
                         break;
-                    case "C-OP040A_2-1":
+                    case "C-OP040B":
                         r = AnalC_OP040Data(bytesarr);
                         break;
                     case "OP010A":
@@ -390,6 +488,9 @@ namespace OPC_UA_Client_A50.BLL
                         break;
                     case "OP080A":
                         r = AnalyWeldData(bytesarr);
+                        break;
+                    case "OP090A":
+                        r = AnalyImageData(bytesarr);
                         break;
                     case "OP110A":
                         r = AnalyWeldData(bytesarr);
@@ -445,6 +546,7 @@ namespace OPC_UA_Client_A50.BLL
             string packID = ConvertHelper.ByteToString(bytes, 120, 70);//packID
             string keticode = ConvertHelper.ByteToString(bytes, 280, 70);//下壳体二维码
             string operatorNum = ConvertHelper.ByteToString(bytes, 362, 10);//操作员号
+            int workstatus = bytes[453];
             byte[] temp = new byte[4];
             string devicecode = ConvertHelper.ByteToString(bytes, 472, 10);//设备编号，不存
             string deviceid = ConvertHelper.ByteToString(bytes, 482, 10);//设备id
@@ -455,7 +557,7 @@ namespace OPC_UA_Client_A50.BLL
             if (deleteRes == 0)
             {
                 StringBuilder sqlsb = new StringBuilder();
-                sqlsb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],DetectedResult,TypeGroup) values ");
+                sqlsb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],DetectedResult,TypeGroup,PassStatus) values ");
                 float value, max = 0, min = 0;
                 int j = 1;
                 short tempres;
@@ -464,16 +566,14 @@ namespace OPC_UA_Client_A50.BLL
                 for (int i = 514; i <= 528;)//解析左右溢胶量
                 {
                     tempres = ConvertHelper.BytesToShort(bytes, i + 12);//检测结果
-                    // value = ConvertHelper.ByteArrtoFolat(bytes, i);//之前想存一个平均值，后面客户说不要了，就要左右侧溢胶最大最小
-                    //sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','12'),", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "mm", deviceid, pronum, tempres);
-                    //datalist.Add(value);
+
 
                     value = ConvertHelper.ByteArrtoFolat(bytes, i + 4);//溢胶最大
-                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','12'),", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "mm", deviceid, pronum, tempres);
+                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','12','{13}'),", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "mm", deviceid, pronum, tempres,workstatus);
                     datalist.Add(value);
                     gluedatamat[tempindex, 0] = value;
                     value = ConvertHelper.ByteArrtoFolat(bytes, i + 8);//溢胶最小
-                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','12'),", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "mm", deviceid, pronum, tempres);
+                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','12','{13}'),", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "mm", deviceid, pronum, tempres,workstatus);
                     datalist.Add(value);
                     gluedatamat[tempindex + 1, 0] = value;
                     i += 14;
@@ -541,6 +641,7 @@ namespace OPC_UA_Client_A50.BLL
             string deviceid = ConvertHelper.ByteToString(bytes, 482, 10);//设备id
             Array.Copy(bytes, 492, temp, 0, 4);
             int pronum = ConvertHelper.ByteArrtoInt(temp);//程序调用号 
+            int workstatus = bytes[453];//加工状态
             #endregion
             int r = UpdateKetiCode(packID, keticode);//下壳体码与packid绑定
             if (r < 0)
@@ -576,7 +677,7 @@ namespace OPC_UA_Client_A50.BLL
             if (deleteRes == 0)
             {
                 StringBuilder sqlsb = new StringBuilder();
-                sqlsb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],DetectedResult,TypeGroup) values ");
+                sqlsb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],DetectedResult,TypeGroup,PassStatus) values ");
                 float value, max, min;
                 int j = 1;
                 short tempres;
@@ -590,27 +691,27 @@ namespace OPC_UA_Client_A50.BLL
                     datalist.Add(value);
                     max = ConvertHelper.ByteArrtoFolat(bytes, i + 4);
                     min = ConvertHelper.ByteArrtoFolat(bytes, i + 8);
-                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','4'),", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "W", deviceid, pronum, tempres);
+                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','4','{13}'),", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "W", deviceid, pronum, tempres, workstatus);
 
                     value = ConvertHelper.ByteArrtoFolat(bytes, i + 12);//保护气流量
                     datamat[0, 1] = value;
                     datalist.Add(value);
                     max = ConvertHelper.ByteArrtoFolat(bytes, i + 16);
                     min = ConvertHelper.ByteArrtoFolat(bytes, i + 20);
-                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','4'),", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "L/min", deviceid, pronum, tempres);
+                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','4','{13}'),", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "L/min", deviceid, pronum, tempres,workstatus);
 
                     value = ConvertHelper.ByteArrtoFolat(bytes, i + 24);//清洗头转速
                     datamat[0, 2] = value;
                     datalist.Add(value);
                     max = ConvertHelper.ByteArrtoFolat(bytes, i + 28);
                     min = ConvertHelper.ByteArrtoFolat(bytes, i + 32);
-                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','4'),", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "r/min", deviceid, pronum, tempres);
+                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','4','{13}'),", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "r/min", deviceid, pronum, tempres,workstatus);
 
                     value = ConvertHelper.ByteArrtoFolat(bytes, i + 36);//占空比
                     datalist.Add(value);
                     max = 0;
                     min = 0;
-                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','4'),", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "", deviceid, pronum, tempres);
+                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','4','{13}'),", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "", deviceid, pronum, tempres,workstatus);
                     j++;
                     i += 42;
                 }
@@ -662,6 +763,7 @@ namespace OPC_UA_Client_A50.BLL
                 string mzsncode = ConvertHelper.ByteToString(bytes, 210, 70);//模组序列号
                 string keticode = ConvertHelper.ByteToString(bytes, 280, 70);//下壳体二维码
                 string operatorNum = ConvertHelper.ByteToString(bytes, 362, 10);//操作员号 
+                int workstatus = bytes[453];//工位加工状态
                 #endregion
                 #region 存储电芯二维码
                 DataTable prodRecord = GetProdRecordTb(packID);
@@ -691,7 +793,7 @@ namespace OPC_UA_Client_A50.BLL
                 if (deleteRes == 0)
                 {
                     StringBuilder datasb = new StringBuilder();
-                    datasb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],DetectedResult,TypeGroup) values ");
+                    datasb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],DetectedResult,TypeGroup,PassStatus) values ");
                     string devicecode;
                     string deviceid;
                     float value, max, min;
@@ -710,11 +812,11 @@ namespace OPC_UA_Client_A50.BLL
                     int pronum = ConvertHelper.ByteArrtoInt(protemp);//程序调用号
                     datares = ConvertHelper.BytesToShort(bytes, 952);//结果
                     value = ConvertHelper.ByteArrtoFolat(bytes, 944);//压力
-                    datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','16'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, 0, 0, "N", deviceid, pronum, datares);
+                    datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','16','{13}'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, 0, 0, "N", deviceid, pronum, datares, workstatus);
                     datalist.Add(value);
                     datamatpress[0, 0] = value;
                     value = ConvertHelper.ByteArrtoFolat(bytes, 948);//距离值
-                    datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','16'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, 0, 0, "mm", deviceid, pronum, datares);
+                    datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','16','{13}'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, 0, 0, "mm", deviceid, pronum, datares, workstatus);
                     datalist.Add(value);
                     datamatpress[0, 1] = value;
                     #endregion
@@ -734,25 +836,25 @@ namespace OPC_UA_Client_A50.BLL
                         datamatplasma[index, 0] = value;
                         max = ConvertHelper.ByteArrtoFolat(bytes, i + +32);//功率最大
                         min = ConvertHelper.ByteArrtoFolat(bytes, i + 36);//功率最小
-                        datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','4'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "W", deviceid, pronum, datares);
+                        datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','4','{13}'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "W", deviceid, pronum, datares, workstatus);
 
                         value = ConvertHelper.ByteArrtoFolat(bytes, i + 40);//气流量
                         datamatplasma[index, 1] = value;
                         datalist.Add(value);
                         max = ConvertHelper.ByteArrtoFolat(bytes, i + 44);//气流量最大
                         min = ConvertHelper.ByteArrtoFolat(bytes, i + 48);//气流量最小
-                        datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','4'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "L/min", deviceid, pronum, datares);
+                        datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','4','{13}'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "L/min", deviceid, pronum, datares, workstatus);
 
                         value = ConvertHelper.ByteArrtoFolat(bytes, i + 52);//转速
                         datamatplasma[index, 2] = value;
                         datalist.Add(value);
                         max = ConvertHelper.ByteArrtoFolat(bytes, i + 56);//转速最大
                         min = ConvertHelper.ByteArrtoFolat(bytes, i + 60);//转速最小
-                        datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','4'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "r/min", deviceid, pronum, datares);
+                        datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','4','{13}'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "r/min", deviceid, pronum, datares,workstatus);
 
                         value = ConvertHelper.ByteArrtoFolat(bytes, i + 64);//占空比
                         datalist.Add(value);
-                        datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','4'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, 0, 0, "", deviceid, pronum, datares);
+                        datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','4','{13}'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, 0, 0, "", deviceid, pronum, datares,workstatus);
                         j++;
                         i = i + 70;
                         index++;
@@ -778,21 +880,21 @@ namespace OPC_UA_Client_A50.BLL
                     datamatglue[0, 0] = value;
                     max = ConvertHelper.ByteArrtoFolat(bytes, 1418);//速度最大
                     min = ConvertHelper.ByteArrtoFolat(bytes, 1422);//速度最小
-                    datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','7'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "cc/s", deviceid, pronum, datares);
+                    datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','7','{13}'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "cc/s", deviceid, pronum, datares,workstatus);
 
                     value = ConvertHelper.ByteArrtoFolat(bytes, 1438);//A胶涂胶速度
                     datalist.Add(value);
                     datamatglue[0, 1] = value;
                     max = ConvertHelper.ByteArrtoFolat(bytes, 1442);//A胶涂胶速度最大
                     min = ConvertHelper.ByteArrtoFolat(bytes, 1446);//A胶涂胶速度最小
-                    datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','7'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "cc/s", deviceid, pronum, datares);
+                    datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','7','{13}'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "cc/s", deviceid, pronum, datares,workstatus);
 
                     value = ConvertHelper.ByteArrtoFolat(bytes, 1462);//B胶涂胶速度
                     datalist.Add(value);
                     datamatglue[0, 2] = value;
                     max = ConvertHelper.ByteArrtoFolat(bytes, 1466);//b胶量最大
                     min = ConvertHelper.ByteArrtoFolat(bytes, 1470);//b胶量最小
-                    datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','7'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "cc/s", deviceid, pronum, datares);
+                    datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','7','{13}'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "cc/s", deviceid, pronum, datares,workstatus);
                     #endregion
                     j += 1;
                     #region 成组电芯入壳压力  类型是6
@@ -804,12 +906,12 @@ namespace OPC_UA_Client_A50.BLL
                     value = ConvertHelper.ByteArrtoFolat(bytes, 1504);//压力
                     yldatas[0, 0] = value;
                     datalist.Add(value);
-                    datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','6'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, 0, 0, "N", deviceid, pronum, datares);
+                    datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','6','{13}'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, 0, 0, "N", deviceid, pronum, datares,workstatus);
 
                     value = ConvertHelper.ByteArrtoFolat(bytes, 1508);//位移
                     yldatas[0, 1] = value;
                     datalist.Add(value);
-                    datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','6'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, 0, 0, "mm", deviceid, pronum, datares);
+                    datasb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','6','{13}'),", packID, stncode, ordnum, operatorNum, DateTime.Now, j, value, 0, 0, "mm", deviceid, pronum, datares,workstatus);
                     #endregion
                     #region 数据检验
                     if (bytes[453] == 1)//  PLC 给过来的加工状态 ，0未加工，1合格，2ng
@@ -879,6 +981,7 @@ namespace OPC_UA_Client_A50.BLL
                 string packID = ConvertHelper.ByteToString(bytes, 120, 70);//packID
                 string keticode = ConvertHelper.ByteToString(bytes, 280, 70);//下壳体二维码
                 string operatorNum = ConvertHelper.ByteToString(bytes, 362, 10);//操作员号
+                int workstatus = bytes[453];
                 byte[] temp = new byte[4];
                 string devicecode = ConvertHelper.ByteToString(bytes, 472, 10);//设备编号，不存
                 string deviceid = ConvertHelper.ByteToString(bytes, 482, 10);//设备id
@@ -893,7 +996,7 @@ namespace OPC_UA_Client_A50.BLL
                 if (deleteRes == 0)
                 {
                     StringBuilder sqlsb = new StringBuilder();
-                    sqlsb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],DetectedResult,TypeGroup) values ");
+                    sqlsb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],DetectedResult,TypeGroup,PassStatus) values ");
                     float value, max, min;
                     int j = 1;
                     short tempres;
@@ -903,13 +1006,13 @@ namespace OPC_UA_Client_A50.BLL
                     min = ConvertHelper.ByteArrtoFolat(bytes, 508);
                     datalist.Add(value);
                     datamat[0, 0] = value;
-                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','2'),", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "P", deviceid, pronum, tempres);
+                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','2','{13}'),", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "P", deviceid, pronum, tempres,workstatus);
                     value = ConvertHelper.ByteArrtoFolat(bytes, 512);
                     max = ConvertHelper.ByteArrtoFolat(bytes, 516);
                     min = ConvertHelper.ByteArrtoFolat(bytes, 520);
                     datalist.Add(value);
                     datamat[0, 1] = value;
-                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','2'),", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "L/min", deviceid, pronum, tempres);
+                    sqlsb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','2','{13}'),", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, max, min, "L/min", deviceid, pronum, tempres,workstatus);
                     #region 数据校验
                     if (bytes[453] == 1)
                     {
@@ -954,12 +1057,12 @@ namespace OPC_UA_Client_A50.BLL
 
         public int AnalOP240Data(byte[] bytes)
         {
-
             #region 基础值
             string ordnum = ConvertHelper.ByteToString(bytes, 60, 40);//订单号
             string packcode = ConvertHelper.ByteToString(bytes, 100, 20);//pack物料号
             string packID = ConvertHelper.ByteToString(bytes, 120, 70);//packID
             string operatorNum = ConvertHelper.ByteToString(bytes, 362, 10);//操作员号
+            int workstatus = bytes[453];
             byte[] temp = new byte[4];
             string devicecode = ConvertHelper.ByteToString(bytes, 472, 10);//设备编号，不存
             string deviceid = ConvertHelper.ByteToString(bytes, 482, 10);//设备id
@@ -968,7 +1071,6 @@ namespace OPC_UA_Client_A50.BLL
             float[,] datamat = new float[1, 1];//数据有效性校验矩阵
             int pronum = ConvertHelper.ByteArrtoInt(temp);//程序调用号 
             #endregion
-
             int deleteRes = DeleteQualitiesData(packID, StnModel.StationCode);
             if (deleteRes == 0)
             {
@@ -979,8 +1081,8 @@ namespace OPC_UA_Client_A50.BLL
                 datalist.Add(value);
                 datamat[0, 0] = value;
                 StringBuilder sb = new StringBuilder();
-                sb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],DetectedResult,TypeGroup) values ");
-                sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','5')", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, 1, value, max, min, "g", deviceid, pronum, tempres);
+                sb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],DetectedResult,TypeGroup,PassStatus) values ");
+                sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','5','{13}')", packID, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, 1, value, max, min, "g", deviceid, pronum, tempres,workstatus);
                 string sqlstr = "update tblWorkOrder set FinishedQty=FinishedQty+1 where WorkOrderNo='" + ordnum + "'";
                 string sqlstr2 = "update tblProduct set [FinishedDatetime]='" + DateTime.Now + "'where [ProductSerialNumber]='" + packID + "'";
                 List<string> sqllist = new List<string>();
@@ -992,7 +1094,7 @@ namespace OPC_UA_Client_A50.BLL
                 {
                     if (CheckDataIntegrity(datalist))
                     {
-                        bool checkres = CheckDataVaid(StnModel.StationCode, "气密测试", packcode, datamat);
+                        bool checkres = CheckDataVaid(StnModel.StationCode, "称重", packcode, datamat);
                         if (checkres == false)
                         {
                             return 14;
@@ -1039,12 +1141,13 @@ namespace OPC_UA_Client_A50.BLL
                 string mzsncode = ConvertHelper.ByteToString(bytes, 210, 70);//模组序列号
                 string keticode = ConvertHelper.ByteToString(bytes, 280, 70);//下壳体二维码
                 string operatorNum = ConvertHelper.ByteToString(bytes, 362, 10);//操作员号
+                int workstatus = bytes[453];
                 byte[] protemp = new byte[4];
                 string devicecode;//设备编号，不存
                 string deviceid;//设备id
                 int pronum;//程序调用号 
                 #endregion
-                sb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],[DetectionAccessory],DetectedResult,TypeGroup) values  ");
+                sb.AppendFormat("insert into tblQualityData(SerialNumber,StationCode,WorkOrderNr,UserNo,EnterStationTime,DetectionSeq,DetectedValue,MaxValue,MinValue,[DetectionUnit],[DetectionDeviceID],[DetectionProgramName],[DetectionAccessory],DetectedResult,TypeGroup,PassStatus) values  ");
                 float value, max, min;
                 byte[] restemp = new byte[2];
                 byte[] temp = new byte[4];
@@ -1057,28 +1160,23 @@ namespace OPC_UA_Client_A50.BLL
                 #region 绝缘性测试
                 float[,] resdatamat = new float[1, 2];//电阻检验矩阵
                 float[,] voldatamat = new float[13, 1];////电压检验矩阵
-                //for (int i = 504; i <= 560;)
-                //{
-                //    value = ConvertHelper.ByteArrtoFolat(bytes, i);
-                //    sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','9'),", packid, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, 1, value, 0, 0, "", deviceid, pronum, "", datares);
-                //    i += 4;
-                //}
+
                 value = ConvertHelper.ByteArrtoFolat(bytes, 504);//偶数对奇数电阻值
                 list.Add(value);
                 resdatamat[0, 0] = value;
-                sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','9'),", packid, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, 1, value, 0, 0, "Ω", deviceid, pronum, "", datares);
+                sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','9','{14}'),", packid, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, 1, value, 0, 0, "Ω", deviceid, pronum, "", datares,workstatus);
 
                 value = ConvertHelper.ByteArrtoFolat(bytes, 508);//电芯正极与外壳绝缘电阻值
                 list.Add(value);
                 resdatamat[0, 1] = value;
-                sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','9'),", packid, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, 1, value, 0, 0, "Ω", deviceid, pronum, "", datares);
+                sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','9','{14}'),", packid, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, 1, value, 0, 0, "Ω", deviceid, pronum, "", datares,workstatus);
                 int tempindex = 0;
                 for (int i = 512; i <= 560;)
                 {
                     value = ConvertHelper.ByteArrtoFolat(bytes, i);
                     list.Add(value);
                     voldatamat[tempindex, 0] = value;
-                    sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','9'),", packid, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, 1, value, 0, 0, "V", deviceid, pronum, "", datares);
+                    sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','9','{14}'),", packid, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, 1, value, 0, 0, "V", deviceid, pronum, "", datares,workstatus);
                     i += 4;
                     tempindex++;
                 }
@@ -1094,15 +1192,15 @@ namespace OPC_UA_Client_A50.BLL
                 datares = ConvertHelper.BytesToShort(bytes, 810);
                 short kxnum = ConvertHelper.BytesToShort(bytes, 784);//烤箱标号
                 list.Add(kxnum);
-                sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','11'),", packid, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, kxnum, 0, 0, "", deviceid, pronum, "", datares);
+                sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','11','{14}'),", packid, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, kxnum, 0, 0, "", deviceid, pronum, "", datares,workstatus);
                 value = ConvertHelper.ByteArrtoFolat(bytes, 786);//烘烤温度
                 list.Add(value);
                 ovendatamat[0, 0] = value;
-                sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','11'),", packid, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, 0, 0, "", deviceid, pronum, "", datares);
+                sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','11','{14}'),", packid, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, 0, 0, "", deviceid, pronum, "", datares,workstatus);
                 value = ConvertHelper.ByteArrtoFolat(bytes, 790);//烘烤时间
                 list.Add(value);
                 ovendatamat[0, 1] = value;
-                sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','11'),", packid, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, 0, 0, "", deviceid, pronum, "", datares);
+                sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','11','{14}'),", packid, StnModel.StationCode, ordnum, operatorNum, DateTime.Now, j, value, 0, 0, "", deviceid, pronum, "", datares,workstatus);
 
                 //DateTime  starttime=  ConvertHelper.BytesToTime(bytes, 794);
 
@@ -1163,7 +1261,7 @@ namespace OPC_UA_Client_A50.BLL
                 }
                 short passmode = ConvertHelper.BytesToShort(datas, 360);//过站信息，0无操作过站，1有操作过站
                 string operatorNum = ConvertHelper.ByteToString(datas, 362, 10);//操作员号
-                int status = datas[453];//0未加工，1合格，2NG
+                int status = datas[453];//0未加工，1合格，2NG,3切除
                 int ngcdoe = datas[454];//ng代码
                 string ordernum = ConvertHelper.ByteToString(datas, 60, 40);//订单号
                 int status1 = (datas[452] & 1) == 1 ? 1 : 0;
@@ -1252,7 +1350,7 @@ namespace OPC_UA_Client_A50.BLL
         public int AnalOCVData(byte[] bytesarray, int datastart)
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("insert into [tb|DianXinData](StationCode,DianXinCode,TestValueVol,TestValueRes,TestValueHig,TestName,TestTime,Result,TestValueHig2) values  ");
+            sb.AppendFormat("insert into [tb|DianXinData](StationCode,DianXinCode,TestValueVol,TestValueRes,TestValueHig,TestName,TestTime,Result,TestValueHig2,PassStatus) values  ");
             short result1, result2, result3, result4;
             result1 = ConvertHelper.BytesToShort(bytesarray, 536);
             result2 = ConvertHelper.BytesToShort(bytesarray, 542);
@@ -1265,7 +1363,8 @@ namespace OPC_UA_Client_A50.BLL
             float hig1 = ConvertHelper.ByteArrtoFolat(bytesarray, 544);
             float hig2 = ConvertHelper.ByteArrtoFolat(bytesarray, 550);
 
-            sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}'),", StnModel.StationCode, dx, vol, res, hig1, "电芯检测", DateTime.Now, result, hig2);
+            int workStatus = bytesarray[453];
+            sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}'),", StnModel.StationCode, dx, vol, res, hig1, "电芯检测", DateTime.Now, result, hig2, workStatus);
 
             string sqlstr = sb.ToString().Substring(0, sb.Length - 1);
             int r = sqlHelper.ExecNonQuery(sqlstr);
@@ -1322,7 +1421,8 @@ namespace OPC_UA_Client_A50.BLL
         public int AnalC_OP040Data(byte[] datas)
         {
             StringBuilder sqlsb = new StringBuilder();
-            sqlsb.AppendFormat(" insert into [dbo].[tblDianXinPassStationData](DianXinCode,WorkOrderNr,StationCode,UserNo,PassMode,PassDatetime,[StationSatus1],[StationSatus2],[StationSatus3],[StationSatus4],[StationSatus5],[StationSatus6],[StationSatus7],[StationSatus8]) values   ");
+            sqlsb.AppendFormat("insert into [dbo].[tblPassStationData](SerialNumber,WorkOrderNr,StationCode,UserNo,PassMode,PassDatetime,[StationSatus1],[StationSatus2],[StationSatus3],[StationSatus4],[StationSatus5],[StationSatus6],[StationSatus7],[StationSatus8],PassStatus,NGCode,LineCode) values ");
+        
             string operatorNum = ConvertHelper.ByteToString(datas, 362, 10);//操作员号
             string ordnum = ConvertHelper.ByteToString(datas, 60, 40);//订单号
             short passmode = ConvertHelper.BytesToShort(datas, 360);//过站类型
@@ -1335,11 +1435,13 @@ namespace OPC_UA_Client_A50.BLL
             int status6 = (datas[452] & 32) == 32 ? 1 : 0;
             int status7 = (datas[452] & 64) == 64 ? 1 : 0;
             int status8 = (datas[452] & 128) == 128 ? 1 : 0;
+            int passstatus = datas[453];
+            int  ngcode =datas[454];
             string dxcode = "";
             for (int i = 500; i <= 884;)
             {
                 dxcode = ConvertHelper.ByteToString(datas, i, 32);
-                sqlsb.AppendFormat("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}'),", dxcode, ordernum, StnModel.StationCode, operatorNum, passmode, DateTime.Now, status1, status2, status3, status4, status5, status6, status7, status8);
+                sqlsb.AppendFormat("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}','{14}','{15}','{16}'),", dxcode, ordernum, StnModel.StationCode, operatorNum, passmode, DateTime.Now, status1, status2, status3, status4, status5, status6, status7, status8, passstatus,ngcode,1);
                 i += 32;
             }
             string sql = sqlsb.ToString().Substring(0, sqlsb.Length - 1);
@@ -1524,7 +1626,7 @@ namespace OPC_UA_Client_A50.BLL
             bool res = false;
             for (int i = 0; i < datalist.Count; i++)
             {
-                if (datalist[i] <= 0)
+                if (datalist[i] < 0)
                 {
                     res = false;
                     break;
@@ -1542,6 +1644,21 @@ namespace OPC_UA_Client_A50.BLL
         {
             StringBuilder sqlsb = new StringBuilder();
             sqlsb.AppendFormat("update tblQualityData  set IsDelete=1  where SerialNumber='{0}' and StationCode='{1}' ", packid, stncode);
+            int res = sqlHelper.ExecNonQuery(sqlsb.ToString());
+            if (res >= 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return 16;
+            }
+
+        }
+        public int DeleteImageData(string packid, string stncode)
+        {
+            StringBuilder sqlsb = new StringBuilder();
+            sqlsb.AppendFormat("update tblSKQImage  set IsDelete=1  where SerialNumber='{0}' and StationCode='{1}' ", packid, stncode);
             int res = sqlHelper.ExecNonQuery(sqlsb.ToString());
             if (res >= 0)
             {
@@ -1597,6 +1714,40 @@ namespace OPC_UA_Client_A50.BLL
 
             return res;
 
+        }
+
+
+        public  int DianXinNg(byte[] datas)
+        {
+            string ordnum = ConvertHelper.ByteToString(datas, 60, 40);
+            string dianxincode= ConvertHelper.ByteToString(datas, 500, 32);
+            string sqlstr1 = "update tblDianXinOrder set ActualQty=ActualQty+1  where  WorkOrderNo='" + ordnum + "'";
+            int status = datas[453];//0未加工，1合格，2NG
+            int ngcdoe = datas[454];//ng代码
+            int status1 = (datas[452] & 1) == 1 ? 1 : 0;
+            int status2 = (datas[452] & 2) == 2 ? 1 : 0;
+            int status3 = (datas[452] & 4) == 4 ? 1 : 0;
+            int status4 = (datas[452] & 8) == 8 ? 1 : 0;
+            int status5 = (datas[452] & 16) == 16 ? 1 : 0;
+            int status6 = (datas[452] & 32) == 32 ? 1 : 0;
+            int status7 = (datas[452] & 64) == 64 ? 1 : 0;
+            int status8 = (datas[452] & 128) == 128 ? 1 : 0;
+            short passmode = ConvertHelper.BytesToShort(datas, 360);//过站信息，0无操作过站，1有操作过站
+            string operatorNum = ConvertHelper.ByteToString(datas, 362, 10);//操作员号
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat("insert into [dbo].[tblPassStationData](SerialNumber,WorkOrderNr,StationCode,UserNo,PassMode,PassDatetime,[StationSatus1],[StationSatus2],[StationSatus3],[StationSatus4],[StationSatus5],[StationSatus6],[StationSatus7],[StationSatus8],PassStatus,NGCode,LineCode) values('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}', '{16}')", dianxincode, ordnum, StnModel.StationCode, operatorNum, passmode, DateTime.Now, status1, status2, status3, status4, status5, status6, status7, status8, status, ngcdoe, 1);
+            List<string> sqllist = new List<string>();
+            sqllist.Add(sqlstr1);
+            sqllist.Add(sb.ToString());
+            int  res = sqlHelper.ExecNonQuery(sqllist);
+            if (res>0)
+            {
+                return 0;
+            }
+            else
+            {
+                return 10;
+            }
         }
     }
 }

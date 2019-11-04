@@ -228,7 +228,7 @@ namespace OPC_UA_Client_A50.BLL
             Dictionary<string, byte[]> dic = new Dictionary<string, byte[]>();
             if (stncode.Equals("OP050A"))//pack段上线工位
             {
-                string sqlstr1 = "select StationName,StationSeq,LineCode from tblStation  where LineCode='PACK'  ORDER BY StationSeq ";
+                string sqlstr1 = "select StationName,StationSeq,LineCode from tblStation  where LineCode='PACK'  and StationName  not in ('OP010A','OP020A','OP030M','OP040A') ORDER BY StationSeq ";
                 DataTable packstntb = sqlHelper.GetDataTb(sqlstr1);//把所有工位查出来
                 sqlstr = "select [PartNo],[StationCode],[StationSeq],[WorkStepNo],[Operation],[ProgramNo],[OperationDescription] from VI_Formula  where [PartNo]='" + ptcode + "'  order by  StationSeq ,WorkStepNo  ";
                 itemName = ".292,b,192";

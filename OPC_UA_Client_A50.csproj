@@ -69,6 +69,7 @@
     <Compile Include="BLL\Class1.cs" />
     <Compile Include="BLL\OpcBll.cs" />
     <Compile Include="BLL\ProdDataBll.cs" />
+    <Compile Include="BLL\SaveMessagaBLL.cs" />
     <Compile Include="Comom\ConfigHelper.cs" />
     <Compile Include="Comom\ConvertHelper.cs" />
     <Compile Include="Comom\LogHelper.cs" />

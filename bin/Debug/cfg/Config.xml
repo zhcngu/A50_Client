@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appSettings>
-  <!--<add key="SqlServer_DB" value="Server=.;Database=A50;Uid=sa;Pwd=1" />-->
-  <add key="SqlServer_DB" value="Server=10.106.98.82;Database=A50;uid=VremtMes;password=Comau123" />
+  <add key="SqlServer_DB" value="Server=.;Database=A50_C;Uid=sa;Pwd=1" />
+  <!--<add key="SqlServer_DB" value="Server=10.106.98.82;Database=A50;uid=VremtMes;password=Comau123" />-->
   <add key="OPCServerUrl" value="opc.tcp://localhost:55101" />
   <add key="OPCServerNameSpace" value="S7:" />
   <add key="PublishingInterval" value="500" /><!--发布时间间隔-->

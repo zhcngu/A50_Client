@@ -428,6 +428,28 @@ namespace OPC_UA_Client_A50.OpcClienHelper
             }
         }
 
+        /// <summary>
+        /// 发送电芯NG剔料完成
+        /// </summary>
+        public  void SendDianXinNgOk()
+        {
+            try
+            {
+                NodeIdCollection readdownNode = new NodeIdCollection();
+                string comDB = MyStationModel.DataWriteDB;//握手信号交互DB块
+                readdownNode.Add(new NodeId(comDB + MyBaseProtocol.MES_PLC_Ready, ServerIndex));
+                DataValueCollection values = new DataValueCollection();
+
+                values.Add(new DataValue(true));
+                StatusCodeCollection codes;
+                MyServer.WriteValues(readdownNode, values, out codes);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Write(ex, "system");
+            }
+        }
+
 
 
         /// <summary>

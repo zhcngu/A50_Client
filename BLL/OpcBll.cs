@@ -21,11 +21,12 @@ namespace OPC_UA_Client_A50.BLL
 
         public  OpcHelper myopcHelper { get; set; }
         private ProdDataBll prodbll;
-
+        SaveMessagaBLL messagaBLL;
         public OpcBll()
         {
           //  sqlHelper = new SqlHelper();
             prodbll = new ProdDataBll();
+            messagaBLL = new SaveMessagaBLL();
         }
         
 
@@ -44,11 +45,13 @@ namespace OPC_UA_Client_A50.BLL
             {
                 myopcHelper.SendErrorsCode(0);
                 myopcHelper.SendWriteDownCmd();
+                messagaBLL.WriteMessage("发送上线完成信号", StnModel.StationCode);
             }
             else
             {
                 byte errorcode = (byte)res;
                 myopcHelper.SendErrorsCode(errorcode);
+                messagaBLL.WriteMessage("发送代码:"+errorcode, StnModel.StationCode);
             }
         }
 
@@ -159,42 +162,52 @@ namespace OPC_UA_Client_A50.BLL
             try
             {
                 string qrcode = myopcHelper.ReadQRCodeData();
+                messagaBLL.WriteMessage("读取BOM二维码" + qrcode, StnModel.StationCode);
                 if (qrcode.Length > 10)
                 {
                     string partnum = qrcode.Substring(0, 10);//物料条码前10位 是  物料号
                     if (StnModel.StationCode.Contains("C"))
                     {
                         ////电芯段物料单独处理
-                        //string sntcode = StnModel.StationCode.Substring(0, 8);
-                        //DataTable bomtb = prodbll.GetBomByFormula(sntcode, partnum);
-                        //if (bomtb.Rows.Count > 0)
-                        //{
-                        //    bool isPartOnly = false;
-                        //    bool.TryParse(bomtb.Rows[0]["ComponentPartOnly"].ToString(), out isPartOnly);
-                        //    if (isPartOnly)
-                        //    {
-                        //        #region 唯一性检验
-                        //        if (!prodbll.CheckUniqueness(qrcode))//唯一性检验不合格，直接告诉PLC，不存库了
-                        //        {
-                        //            myopcHelper.SendErrorsCode(13);//唯一性检验不合格
-                        //            myopcHelper.SendUniqNG();
-                        //            myopcHelper.SendBomNGCmd();
-                        //            return;
-                        //        }
-                        //        else//唯一性检验合格
-                        //        {
-                        //            myopcHelper.SendErrorsCode(0);
-                        //            myopcHelper.SendUniqOK();
-                        //            myopcHelper.SendBomOKCmd();
-                        //        }
-                        //        #endregion
-                        //    }
-                        //}
-                        //else
-                        //{
-                        //    myopcHelper.SendBomNGCmd();
-                        //}
-                          myopcHelper.SendBomOKCmd();
+                        string sntcode = StnModel.StationCode.Substring(0, 8);
+                        DataTable bomtb = prodbll.GetBomByFormula(sntcode, partnum);
+                        if (bomtb.Rows.Count > 0)
+                        {
+                            bool isPartOnly = false;
+                            bool.TryParse(bomtb.Rows[0]["ComponentPartOnly"].ToString(), out isPartOnly);
+                            if (isPartOnly)
+                            {
+                                #region 唯一性检验
+                                if (!prodbll.CheckUniqueness(qrcode))//唯一性检验不合格，直接告诉PLC，不存库了
+                                {
+                                    myopcHelper.SendErrorsCode(13);//唯一性检验不合格
+                                    myopcHelper.SendUniqNG();
+                                    myopcHelper.SendBomNGCmd();
+                                    messagaBLL.WriteMessage("发送BOM比对NG,发送错误代码13(唯一性校验NG)", StnModel.StationCode);
+                                    return;
+                                }
+                                else//唯一性检验合格
+                                {
+                                    myopcHelper.SendErrorsCode(0);
+                                    myopcHelper.SendUniqOK();
+                                    myopcHelper.SendBomOKCmd();
+                                    messagaBLL.WriteMessage("发送BOM比对OK,唯一性校验OK)", StnModel.StationCode);
+                                }
+                                #endregion
+                            }
+                            else
+                            {
+                                myopcHelper.SendBomOKCmd();
+                                messagaBLL.WriteMessage("发送BOM比对OK", StnModel.StationCode);
+                            }
+
+                        }
+                        else
+                        {
+                            myopcHelper.SendBomNGCmd();
+                            messagaBLL.WriteMessage("发送BOM比对NG", StnModel.StationCode);
+                        }
+                     
                     }
                     else
                     {
@@ -207,35 +220,43 @@ namespace OPC_UA_Client_A50.BLL
                             if (isPartOnly)
                             {
                                 #region 唯一性检验
-                                //if (!prodbll.CheckUniqueness(qrcode))//唯一性检验不合格，直接告诉PLC，不存库了
-                                //{
-                                //    myopcHelper.SendErrorsCode(13);//唯一性检验不合格
-                                //    myopcHelper.SendUniqNG();
-                                //    myopcHelper.SendBomNGCmd();
-                                //    return;
-                                //}
-                                //else//唯一性检验合格
-                                //{
-                                //    myopcHelper.SendErrorsCode(0);
-                                //    myopcHelper.SendUniqOK();
-                                //    if (StnModel.StationCode == "OP010A")//OP10先把下壳体二维码发过来了，此时还没上线，所以不需要写库，下线时候在写库
-                                //    {
-                                //        myopcHelper.SendBomOKCmd();
-                                //        return;
-                                //    }
-                                //} 
+                                if (!prodbll.CheckUniqueness(qrcode))//唯一性检验不合格，直接告诉PLC，不存库了
+                                {
+                                    myopcHelper.SendErrorsCode(13);//唯一性检验不合格
+                                    myopcHelper.SendUniqNG();
+                                    myopcHelper.SendBomNGCmd();
+                                    messagaBLL.WriteMessage("发送BOM比对NG,发送错误代码13(唯一性校验NG)", StnModel.StationCode);
+                                    return;
+                                }
+                                else//唯一性检验合格
+                                {
+                                    //myopcHelper.SendErrorsCode(0);
+                                    myopcHelper.SendUniqOK();
+                                    if (StnModel.StationCode == "OP010A")//OP10先把下壳体二维码发过来了，此时还没上线，所以不需要写库，下线时候在写库
+                                    {
+                                        myopcHelper.SendBomOKCmd();
+                                        messagaBLL.WriteMessage("发送BOM比对OK,唯一性校验OK)", StnModel.StationCode);
+                                        return;
+                                    }
+                                }
                                 #endregion
 
                                 #region 调试阶段
-                                if (StnModel.StationCode == "OP010A")
-                                {
-                                    myopcHelper.SendBomOKCmd();
-                                    return;
-                                }
+                                //if (StnModel.StationCode == "OP010A")
+                                //{
+                                //    myopcHelper.SendBomOKCmd();
+                                //    return;
+                                //}
                                 #endregion
                             }
                             #endregion
                             string packid = myopcHelper.ReadPackID();
+                            if (String.IsNullOrEmpty(packid))
+                            {
+                                myopcHelper.SendErrorsCode(20);
+                                messagaBLL.WriteMessage("发送错误代码20(PackID为空)", StnModel.StationCode);
+                                return;
+                            }
                             string operatorNum = myopcHelper.ReadOperatorID();
                             #region 获取生产记录，查找订单ID和生产记录ID
                             DataTable prodRecord = prodbll.GetProdRecord(packid);
@@ -244,6 +265,11 @@ namespace OPC_UA_Client_A50.BLL
                             {
                                 prodid = Convert.ToInt32(prodRecord.Rows[0]["ProductID"]);
                                 orderid = Convert.ToInt32(prodRecord.Rows[0]["WorkOrderID"]);
+                            }
+                            else
+                            {
+                                messagaBLL.WriteMessage("发送错误代码21(未获取到生产记录)", StnModel.StationCode);
+                                return;
                             }
                             #endregion
 
@@ -255,16 +281,20 @@ namespace OPC_UA_Client_A50.BLL
                             if (r > 0)
                             {
                                 myopcHelper.SendBomOKCmd();
+                                myopcHelper.SendErrorsCode(0);
+                                messagaBLL.WriteMessage("发送BOM比对OK", StnModel.StationCode);
                             }
                             else
                             {
                                 myopcHelper.SendErrorsCode(10);//写库失败
+                                messagaBLL.WriteMessage("发送错误代码10(写数据库失败)", StnModel.StationCode);
                             }
                             #endregion
                         }
                         else
                         {
                             myopcHelper.SendBomNGCmd();
+                            messagaBLL.WriteMessage("发送BOM比对NG)", StnModel.StationCode);
                         }
                     }
                 }
@@ -272,12 +302,14 @@ namespace OPC_UA_Client_A50.BLL
                 {
                     myopcHelper.SendErrorsCode(12);//物料条码长度不合格
                     myopcHelper.SendBomNGCmd();
+                    messagaBLL.WriteMessage("发送物料比对NG,错误代码12(物料条码长度不足10位)",  StnModel.StationCode);
                 }
             }
             catch (Exception ex)
             {
                 LogHelper.Write("检验BOM是异常:" + ex.Message, "system");
                 myopcHelper.SendErrorsCode(100);
+                messagaBLL.WriteMessage("发送错误代码100(主应用程序错误)", StnModel.StationCode);
             }
             
         }
@@ -294,7 +326,8 @@ namespace OPC_UA_Client_A50.BLL
             float dxhig1 = ConvertHelper.ByteArrtoFolat(bytes, 544);
             float dxhig2 = ConvertHelper.ByteArrtoFolat(bytes, 550);
             myopcHelper.SendOCV_OKCmd();
-          //  myopcHelper.SendOCV_NGCmd();
+            messagaBLL.WriteMessage("发送OCV测试合格", StnModel.StationCode);
+            //  myopcHelper.SendOCV_NGCmd();
         }
     }
 }
