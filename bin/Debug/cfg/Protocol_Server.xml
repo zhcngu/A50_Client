@@ -3,8 +3,8 @@
   <STN_BaseProtocol>
     <PLC_MES_Heart>.0,x0</PLC_MES_Heart>
     <PLC_MES_Remark1>.0,x1</PLC_MES_Remark1>
-    <PLC_MES_DataRequest>.10,x2</PLC_MES_DataRequest>
-    <PLC_MES_DataSave>.10,x3</PLC_MES_DataSave>
+    <PLC_MES_DataRequest>.0,x2</PLC_MES_DataRequest>
+    <PLC_MES_DataSave>.0,x3</PLC_MES_DataSave>
     <PLC_MES_ReadBom>.0,x4</PLC_MES_ReadBom>
     <PLC_MES_RepairRequest>.0,x5</PLC_MES_RepairRequest>
     <PLC_MES_RepairSave>.0,x6</PLC_MES_RepairSave>
@@ -31,13 +31,106 @@
     <MES_PLC_Remark>.1,x7</MES_PLC_Remark>
     <MES_PLC_OCVOK>.2,x0</MES_PLC_OCVOK>
     <MES_PLC_OCVNG>.2,x1</MES_PLC_OCVNG>
+    <MES_PLC_UniqOK>.2,x2</MES_PLC_UniqOK>
+    <MES_PLC_UniqNG>.2,x3</MES_PLC_UniqNG>
     <MES_PLC_ErrorCode>.5,b</MES_PLC_ErrorCode>
   </STN_BaseProtocol>
   <StationModelList>
 
+ <StationModel>
+      <StationCode>C-OP010A_2</StationCode>
+      <STN_Status>TRUE</STN_Status>
+      <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
+      <DataReadDB>DX2.DB920</DataReadDB>
+      <DataWriteDB>DX2.DB921</DataWriteDB>
+      <DataAddress>280</DataAddress>
+      <DataLength>150</DataLength>
+      <DBLength>570</DBLength>
+    </StationModel>
+
     <StationModel>
-      <StationCode>C-OP010</StationCode>
-      <STN_Status>false</STN_Status>
+      <StationCode>C-OP020A_2-1</StationCode>
+      <STN_Status>TRUE</STN_Status>
+      <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
+      <DataReadDB>DX2.DB928</DataReadDB>
+      <DataWriteDB>DX2.DB929</DataWriteDB>
+      <DataAddress>280</DataAddress>
+      <DataLength>150</DataLength>
+      <DBLength>560</DBLength>
+    </StationModel>
+    <StationModel>
+      <StationCode>C-OP020A_2-2</StationCode>
+      <STN_Status>TRUE</STN_Status>
+      <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
+      <DataReadDB>DX2.DB930</DataReadDB>
+      <DataWriteDB>DX2.DB931</DataWriteDB>
+      <DataAddress>280</DataAddress>
+      <DataLength>150</DataLength>
+      <DBLength>560</DBLength>
+    </StationModel>
+    <StationModel>
+      <StationCode>C-OP020A_2-3</StationCode>
+      <STN_Status>TRUE</STN_Status>
+      <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
+      <DataReadDB>DX2.DB932</DataReadDB>
+      <DataWriteDB>DX2.DB933</DataWriteDB>
+      <DataAddress>280</DataAddress>
+      <DataLength>150</DataLength>
+      <DBLength>560</DBLength>
+    </StationModel>
+
+    <StationModel>
+      <StationCode>C-OP030A_2-2</StationCode>
+      <STN_Status>TRUE</STN_Status>
+      <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
+      <DataReadDB>DX2.DB934</DataReadDB>
+      <DataWriteDB>DX2.DB935</DataWriteDB>
+      <DataAddress>280</DataAddress>
+      <DataLength>150</DataLength>
+      <DBLength>692</DBLength>
+    </StationModel>
+    <StationModel>
+      <StationCode>C-OP030A_2-3</StationCode>
+      <STN_Status>TRUE</STN_Status>
+      <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
+      <DataReadDB>DX2.DB936</DataReadDB>
+      <DataWriteDB>DX2.DB937</DataWriteDB>
+      <DataAddress>280</DataAddress>
+      <DataLength>150</DataLength>
+      <DBLength>692</DBLength>
+    </StationModel>
+
+
+   <StationModel>
+      <StationCode>C-OP035A_2</StationCode>
+      <STN_Status>FALSE</STN_Status>
+      <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
+      <DataReadDB>DX2.DB938</DataReadDB>
+      <DataWriteDB>DX2.DB939</DataWriteDB>
+      <DataAddress>280</DataAddress>
+      <DataLength>150</DataLength>
+      <DBLength>600</DBLength>
+    </StationModel>
+
+
+    <StationModel>
+      <StationCode>C-OP040A_2</StationCode>
+      <STN_Status>TRUE</STN_Status>
+      <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
+      <DataReadDB>DX2.DB922</DataReadDB>
+      <DataWriteDB>DX2.DB923</DataWriteDB>
+      <DataAddress>280</DataAddress>
+      <DataLength>150</DataLength>
+      <DBLength>1044</DBLength>
+    </StationModel>
+
+  
+
+
+
+    <StationModel>
+      <StationCode>C-OP010A_1</StationCode>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>DX1.DB920</DataReadDB>
       <DataWriteDB>DX1.DB921</DataWriteDB>
@@ -45,10 +138,9 @@
       <DataLength>150</DataLength>
       <DBLength>570</DBLength>
     </StationModel>
-   
     <StationModel>
-      <StationCode>C-OP020-1</StationCode>
-      <STN_Status>false</STN_Status>
+      <StationCode>C-OP020A_1-1</StationCode>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>DX1.DB928</DataReadDB>
       <DataWriteDB>DX1.DB929</DataWriteDB>
@@ -57,8 +149,8 @@
       <DBLength>556</DBLength>
     </StationModel>
     <StationModel>
-      <StationCode>C-OP020-2</StationCode>
-      <STN_Status>false</STN_Status>
+      <StationCode>C-OP020A_1-2</StationCode>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>DX1.DB930</DataReadDB>
       <DataWriteDB>DX1.DB931</DataWriteDB>
@@ -67,8 +159,8 @@
       <DBLength>556</DBLength>
     </StationModel>
     <StationModel>
-      <StationCode>C-OP020-3</StationCode>
-      <STN_Status>false</STN_Status>
+      <StationCode>C-OP020A_1-3</StationCode>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>DX1.DB932</DataReadDB>
       <DataWriteDB>DX1.DB933</DataWriteDB>
@@ -77,8 +169,8 @@
       <DBLength>556</DBLength>
     </StationModel>
     <StationModel>
-      <StationCode>C-OP030-2</StationCode>
-      <STN_Status>false</STN_Status>
+      <StationCode>C-OP030A_1-2</StationCode>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>DX1.DB934</DataReadDB>
       <DataWriteDB>DX1.DB935</DataWriteDB>
@@ -87,8 +179,8 @@
       <DBLength>692</DBLength>
     </StationModel>
     <StationModel>
-      <StationCode>C-OP030-3</StationCode>
-      <STN_Status>false</STN_Status>
+      <StationCode>C-OP030A_1-3</StationCode>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>DX1.DB936</DataReadDB>
       <DataWriteDB>DX1.DB937</DataWriteDB>
@@ -97,9 +189,32 @@
       <DBLength>692</DBLength>
     </StationModel>
 
+   <StationModel>
+      <StationCode>C-OP035A_1</StationCode>
+      <STN_Status>true</STN_Status>
+      <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
+      <DataReadDB>DX1.DB938</DataReadDB>
+      <DataWriteDB>DX1.DB939</DataWriteDB>
+      <DataAddress>280</DataAddress>
+      <DataLength>150</DataLength>
+      <DBLength>600</DBLength>
+    </StationModel>
+
+  <StationModel>
+      <StationCode>C-OP040A_1</StationCode>
+      <STN_Status>TRUE</STN_Status>
+      <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
+      <DataReadDB>DX1.DB922</DataReadDB>
+      <DataWriteDB>DX1.DB923</DataWriteDB>
+      <DataAddress>280</DataAddress>
+      <DataLength>150</DataLength>
+      <DBLength>1044</DBLength>
+    </StationModel>
+    
+
     <StationModel>
       <StationCode>OP010A</StationCode>
-      <STN_Status>TRUE</STN_Status>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>ZY.DB901</DataReadDB>
       <DataWriteDB>ZY.DB902</DataWriteDB>
@@ -109,7 +224,7 @@
     </StationModel>
     <StationModel>
       <StationCode>OP020A</StationCode>
-      <STN_Status>false</STN_Status>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>ZY.DB921</DataReadDB>
       <DataWriteDB>ZY.DB922</DataWriteDB>
@@ -117,9 +232,19 @@
       <DataLength>150</DataLength>
       <DBLength>1534</DBLength>
     </StationModel>
+ <StationModel>
+      <StationCode>OP020A-2</StationCode>
+      <STN_Status>true</STN_Status>
+      <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
+      <DataReadDB>ZY.DB925</DataReadDB>
+      <DataWriteDB>ZY.DB924</DataWriteDB>
+      <DataAddress>500</DataAddress>
+      <DataLength>150</DataLength>
+      <DBLength>1534</DBLength>
+    </StationModel>
     <StationModel>
       <StationCode>OP040A</StationCode>
-      <STN_Status>false</STN_Status>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>ZY.DB931</DataReadDB>
       <DataWriteDB>ZY.DB932</DataWriteDB>
@@ -130,27 +255,27 @@
 
     <StationModel>
       <StationCode>OP050A</StationCode>
-      <STN_Status>false</STN_Status>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>ZY.DB941</DataReadDB>
       <DataWriteDB>ZY.DB942</DataWriteDB>
       <DataAddress>280</DataAddress>
       <DataLength>150</DataLength>
-      <DBLength>600</DBLength>
+      <DBLength>920</DBLength>
     </StationModel>
     <StationModel>
       <StationCode>OP060A</StationCode>
-      <STN_Status>false</STN_Status>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>OP060.DB6001</DataReadDB>
       <DataWriteDB>OP060.DB6000</DataWriteDB>
       <DataAddress>500</DataAddress>
-      <DataLength>850</DataLength>
-      <DBLength>864</DBLength>
+      <DataLength>1700</DataLength>
+      <DBLength>2256</DBLength>
     </StationModel>
     <StationModel>
       <StationCode>OP080A</StationCode>
-      <STN_Status>false</STN_Status>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>OP080.DB6001</DataReadDB>
       <DataWriteDB>OP080.DB6000</DataWriteDB>
@@ -160,17 +285,17 @@
     </StationModel>
     <StationModel>
       <StationCode>OP090A</StationCode>
-      <STN_Status>false</STN_Status>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>OP090.DB6001</DataReadDB>
       <DataWriteDB>OP090.DB6000</DataWriteDB>
-      <DataAddress>0</DataAddress>
-      <DataLength>0</DataLength>
-      <DBLength>500</DBLength>
+      <DataAddress>500</DataAddress>
+      <DataLength>1364</DataLength>
+      <DBLength>1426</DBLength>
     </StationModel>
     <StationModel>
       <StationCode>OP110A</StationCode>
-      <STN_Status>false</STN_Status>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>OP110.DB6001</DataReadDB>
       <DataWriteDB>OP110.DB6000</DataWriteDB>
@@ -180,7 +305,7 @@
     </StationModel>
     <StationModel>
       <StationCode>OP100A</StationCode>
-      <STN_Status>false</STN_Status>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>OP100.DB1185</DataReadDB>
       <DataWriteDB>OP100.DB1186</DataWriteDB>
@@ -192,7 +317,7 @@
 
     <StationModel>
       <StationCode>OP070A</StationCode>
-      <STN_Status>false</STN_Status>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>OP070.DB1085</DataReadDB>
       <DataWriteDB>OP070.DB1086</DataWriteDB>
@@ -202,7 +327,7 @@
     </StationModel>
     <StationModel>
       <StationCode>OP130A</StationCode>
-      <STN_Status>false</STN_Status>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>OP130.DB1085</DataReadDB>
       <DataWriteDB>OP130.DB1086</DataWriteDB>
@@ -212,7 +337,7 @@
     </StationModel>
     <StationModel>
       <StationCode>OP130B</StationCode>
-      <STN_Status>false</STN_Status>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>OP130.DB1185</DataReadDB>
       <DataWriteDB>OP130.DB1186</DataWriteDB>
@@ -222,7 +347,7 @@
     </StationModel>
     <StationModel>
       <StationCode>OP200A</StationCode>
-      <STN_Status>false</STN_Status>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>OP200.DB1085</DataReadDB>
       <DataWriteDB>OP200.DB1086</DataWriteDB>
@@ -232,7 +357,7 @@
     </StationModel>
     <StationModel>
       <StationCode>OP200B</StationCode>
-      <STN_Status>false</STN_Status>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>OP200.DB1185</DataReadDB>
       <DataWriteDB>OP200.DB1186</DataWriteDB>
@@ -242,7 +367,7 @@
     </StationModel>
     <StationModel>
       <StationCode>OP210A</StationCode>
-      <STN_Status>false</STN_Status>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>OP210.DB1085</DataReadDB>
       <DataWriteDB>OP210.DB1086</DataWriteDB>
@@ -250,20 +375,12 @@
       <DataLength>552</DataLength>
       <DBLength>526</DBLength>
     </StationModel>
-    <StationModel>
-      <StationCode>C-OP040-1</StationCode>
-      <STN_Status>false</STN_Status>
-      <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
-      <DataReadDB>DX1.DB922</DataReadDB>
-      <DataWriteDB>DX1.DB923</DataWriteDB>
-      <DataAddress>280</DataAddress>
-      <DataLength>150</DataLength>
-      <DBLength>1044</DBLength>
-    </StationModel>
 
+    
+    
     <StationModel>
       <StationCode>OP220A</StationCode>
-      <STN_Status>false</STN_Status>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>OP220.DB1085</DataReadDB>
       <DataWriteDB>OP220.DB1086</DataWriteDB>
@@ -275,15 +392,56 @@
     
     <StationModel>
       <StationCode>OP240A</StationCode>
-      <STN_Status>false</STN_Status>
+      <STN_Status>true</STN_Status>
       <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
       <DataReadDB>OP240.DB1085</DataReadDB>
       <DataWriteDB>OP240.DB1086</DataWriteDB>
       <DataAddress>280</DataAddress>
       <DataLength>150</DataLength>
       <DBLength>514</DBLength>
+      <RepairDataReadDB>OP240.DB1014</RepairDataReadDB>
+      <RepairDataWriteDB>OP240.DB1015</RepairDataWriteDB>
     </StationModel>
 
+
+    <StationModel>
+      <StationCode>OP055</StationCode>
+      <STN_Status>true</STN_Status>
+      <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
+      <DataReadDB>CZ4.DB1085</DataReadDB>
+      <DataWriteDB>CZ4.DB1086</DataWriteDB>
+      <DataAddress>280</DataAddress>
+      <DataLength>150</DataLength>
+      <DBLength>600</DBLength>
+      <RepairDataReadDB>CZ4.DB1114</RepairDataReadDB>
+      <RepairDataWriteDB>CZ4.DB1115</RepairDataWriteDB>
+    </StationModel>
+
+    <StationModel>
+      <StationCode>OP135</StationCode>
+      <STN_Status>true</STN_Status>
+      <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
+      <DataReadDB>CZ4.DB1185</DataReadDB>
+      <DataWriteDB>CZ4.DB1186</DataWriteDB>
+      <DataAddress>280</DataAddress>
+      <DataLength>150</DataLength>
+      <DBLength>600</DBLength>
+      <RepairDataReadDB>CZ4.DB1214</RepairDataReadDB>
+      <RepairDataWriteDB>CZ4.DB1215</RepairDataWriteDB>
+    </StationModel>
+    
+     <StationModel>
+      <StationCode>OP155</StationCode>
+      <STN_Status>true</STN_Status>
+      <CommunicationDB>@LOCALSERVER.DB1</CommunicationDB>
+      <DataReadDB>CZ4.DB1285</DataReadDB>
+      <DataWriteDB>CZ4.DB1286</DataWriteDB>
+      <DataAddress>280</DataAddress>
+      <DataLength>150</DataLength>
+      <DBLength>600</DBLength>
+      <RepairDataReadDB>CZ4.DB1614</RepairDataReadDB>
+      <RepairDataWriteDB>CZ4.DB1615</RepairDataWriteDB>
+    </StationModel>
   
 
   </StationModelList>

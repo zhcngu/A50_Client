@@ -3,3 +3,9 @@
    在 OPC_UA_Client_A50.OpcClienHelper.OpcHelper.ReadPlcData() 位置 C:\公司\A50_Client\OpcClienHelper\OpcHelper.cs:行号 42
    在 OPC_UA_Client_A50.OpcBingEvent.BingEvent.ClientDataChanged(List`1 clientHandleList, List`1 valueList, StationModel stnmodel, BaseProtocol protocol) 位置 C:\公司\A50_Client\OpcBingEvent\BingEvent.cs:行号 195
 
+2019-11-11 08:56:56 异常消息: 未将对象引用设置到对象的实例。
+2019-11-11 08:56:56 堆栈消息:    在 OPC_UA_Client_A50.BLL.ProdDataBll.GetFormulaData(String ptcode, String stncode) 位置 C:\公司\A50_Client\BLL\ProdDataBll.cs:行号 247
+   在 OPC_UA_Client_A50.BLL.OpcBll.InitStnData() 位置 C:\公司\A50_Client\BLL\OpcBll.cs:行号 75
+   在 OPC_UA_Client_A50.BLL.OpcBll.InitData() 位置 C:\公司\A50_Client\BLL\OpcBll.cs:行号 42
+   在 OPC_UA_Client_A50.OpcBingEvent.BingEvent.ClientDataChanged(List`1 clientHandleList, List`1 valueList, StationModel stnmodel, BaseProtocol protocol) 位置 C:\公司\A50_Client\OpcBingEvent\BingEvent.cs:行号 168
+

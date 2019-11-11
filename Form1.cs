@@ -10,6 +10,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +25,8 @@ namespace OPC_UA_Client_A50
         {
             InitializeComponent();
         }
+
+        Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         BingEvent eve = new BingEvent();
         List<StationModel> stationModelsList;
         BaseProtocol protocol;
@@ -89,7 +92,18 @@ namespace OPC_UA_Client_A50
             //        BingEvent eve = new BingEvent(config, item, p.STN_BaseProtocol);
             //    }
             //}
-
+            try
+            {
+                int port = Convert.ToInt32(ConfigHelper.GetConfigValue("MarkPort"));
+                socket.ReceiveTimeout = 13000;
+                socket.SendTimeout = 3000;
+                socket.Connect(ConfigHelper.GetConfigValue("MarkIP"), port);
+                eve.SocketClient = socket;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("链接打标机出错");
+            }
             C_OP010 = p.StationModelList.Where((item) => { return item.StationCode == "C-OP010A_1"; }).First();
             if   ( Convert.ToBoolean( C_OP010.STN_Status))
             {

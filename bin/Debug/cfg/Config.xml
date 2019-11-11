@@ -8,4 +8,6 @@
   <add key="SamplingRate" value="500" />  <!--采样频率-->
   <add key="WebSocketIP" value="0.0.0.0" /> <!---->
   <add key="WebSocketPort" value="8181" />
+  <add key="MarkIP" value="172.242.41.230" />
+  <add key="MarkPort" value="50000" />
 </appSettings>

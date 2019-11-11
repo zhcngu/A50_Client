@@ -132,25 +132,32 @@ namespace OPC_UA_Client_A50.BLL
         private  int InitDxStnData()
         {
             myopcHelper.SendWritingCmd();
-            DataTable tb = prodbll.GetDianXinOrder();
-            if (!String.IsNullOrEmpty(tb.Rows[0]["OrderNum"].ToString()))
+            if (StnModel.StationCode.Contains("C-OP010"))
             {
-                string ptcode = tb.Rows[0]["PartNum"].ToString();//成品物料号
-                string ordnum = tb.Rows[0]["OrderNum"].ToString();
-
-                Dictionary<string, byte[]> dic = prodbll.GetFormulaData(ptcode, StnModel.StationCode);
-                if (myopcHelper.InitRequestData(ordnum, "", "", "", "",dic))
+                DataTable tb = prodbll.GetDianXinOrder();
+                if (!String.IsNullOrEmpty(tb.Rows[0]["OrderNum"].ToString()))
                 {
-                    return prodbll.UpdateDianXinOrder(ordnum);
+                    string ptcode = tb.Rows[0]["PartNum"].ToString();//成品物料号
+                    string ordnum = tb.Rows[0]["OrderNum"].ToString();
+
+                    Dictionary<string, byte[]> dic = prodbll.GetFormulaData(ptcode, StnModel.StationCode);
+                    if (myopcHelper.InitRequestData(ordnum, "", "", "", "", dic))
+                    {
+                        return prodbll.UpdateDianXinOrder(ordnum);
+                    }
+                    else
+                    {
+                        return 3;//opc写数据失败
+                    }
                 }
                 else
                 {
-                   return 3;//opc写数据失败
-                }
+             
+                    return 2;
+                } 
             }
             else
             {
-               // myopcHelper.SendErrorsCode(2);//没订单
                 return 2;
             }
         }
@@ -220,32 +227,24 @@ namespace OPC_UA_Client_A50.BLL
                             if (isPartOnly)
                             {
                                 #region 唯一性检验
-                                if (!prodbll.CheckUniqueness(qrcode))//唯一性检验不合格，直接告诉PLC，不存库了
-                                {
-                                    myopcHelper.SendErrorsCode(13);//唯一性检验不合格
-                                    myopcHelper.SendUniqNG();
-                                    myopcHelper.SendBomNGCmd();
-                                    messagaBLL.WriteMessage("发送BOM比对NG,发送错误代码13(唯一性校验NG)", StnModel.StationCode);
-                                    return;
-                                }
-                                else//唯一性检验合格
-                                {
-                                    //myopcHelper.SendErrorsCode(0);
-                                    myopcHelper.SendUniqOK();
-                                    if (StnModel.StationCode == "OP010A")//OP10先把下壳体二维码发过来了，此时还没上线，所以不需要写库，下线时候在写库
-                                    {
-                                        myopcHelper.SendBomOKCmd();
-                                        messagaBLL.WriteMessage("发送BOM比对OK,唯一性校验OK)", StnModel.StationCode);
-                                        return;
-                                    }
-                                }
-                                #endregion
-
-                                #region 调试阶段
-                                //if (StnModel.StationCode == "OP010A")
+                                //if (!prodbll.CheckUniqueness(qrcode))//唯一性检验不合格，直接告诉PLC，不存库了
                                 //{
-                                //    myopcHelper.SendBomOKCmd();
+                                //    myopcHelper.SendErrorsCode(13);//唯一性检验不合格
+                                //    myopcHelper.SendUniqNG();
+                                //    myopcHelper.SendBomNGCmd();
+                                //    messagaBLL.WriteMessage("发送BOM比对NG,发送错误代码13(唯一性校验NG)", StnModel.StationCode);
                                 //    return;
+                                //}
+                                //else//唯一性检验合格
+                                //{
+                                //    //myopcHelper.SendErrorsCode(0);
+                                //    myopcHelper.SendUniqOK();
+                                //    if (StnModel.StationCode == "OP010A")//OP10先把下壳体二维码发过来了，此时还没上线，所以不需要写库，下线时候在写库
+                                //    {
+                                //        myopcHelper.SendBomOKCmd();
+                                //        messagaBLL.WriteMessage("发送BOM比对OK,唯一性校验OK)", StnModel.StationCode);
+                                //        return;
+                                //    }
                                 //}
                                 #endregion
                             }
@@ -322,11 +321,23 @@ namespace OPC_UA_Client_A50.BLL
         {
             string dxQrcode = ConvertHelper.ByteToString(bytes, 500, 32);
             float dxvol = ConvertHelper.ByteArrtoFolat(bytes, 532);
-            float dxres = ConvertHelper.ByteArrtoFolat(bytes, 538);
-            float dxhig1 = ConvertHelper.ByteArrtoFolat(bytes, 544);
-            float dxhig2 = ConvertHelper.ByteArrtoFolat(bytes, 550);
-            myopcHelper.SendOCV_OKCmd();
-            messagaBLL.WriteMessage("发送OCV测试合格", StnModel.StationCode);
+            //float dxres = ConvertHelper.ByteArrtoFolat(bytes, 538);
+            //float dxhig1 = ConvertHelper.ByteArrtoFolat(bytes, 544);
+            //float dxhig2 = ConvertHelper.ByteArrtoFolat(bytes, 550);
+            int  res= prodbll.GetDianXinOCVTestResult(dxQrcode, dxvol);
+            if (res!=0)
+            {
+                myopcHelper.SendOCV_NGCmd();
+                myopcHelper.SendErrorsCode((byte)res);
+                messagaBLL.WriteMessage("发送OCV测试NG", StnModel.StationCode);
+            }
+            else
+            {
+                myopcHelper.SendOCV_OKCmd();
+                myopcHelper.SendErrorsCode((byte)res);
+                messagaBLL.WriteMessage("发送OCV测试合格", StnModel.StationCode);
+            }
+           
             //  myopcHelper.SendOCV_NGCmd();
         }
     }

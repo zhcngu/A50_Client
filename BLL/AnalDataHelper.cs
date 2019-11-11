@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data;
+using System.Net.Sockets;
 
 using OPC_UA_Client_A50.Dal;
 using OPC_UA_Client_A50.Model;
@@ -16,6 +17,7 @@ namespace OPC_UA_Client_A50.BLL
     {
         SqlHelper sqlHelper { get; set; }
         public StationModel StnModel { get; set; }
+
         public AnalDataHelper(StationModel stnmodel)
         {
             sqlHelper = new SqlHelper();
@@ -422,9 +424,10 @@ namespace OPC_UA_Client_A50.BLL
             try
             {
                 int r;
+                string packidstr="";
                 if (!StnModel.StationCode.Contains("C"))
                 {
-                    string packidstr = ConvertHelper.ByteToString(bytesarr, 120, 70);
+                    packidstr = ConvertHelper.ByteToString(bytesarr, 120, 70);
                     if (String.IsNullOrEmpty(packidstr))
                     {
                         return 20;
@@ -462,10 +465,10 @@ namespace OPC_UA_Client_A50.BLL
                     case "C-OP030A_2-3":
                         r = AnalC_OP030Data(bytesarr);
                         break;
-                    case "C-OP040A":
+                    case "C-OP040A_1":
                         r = AnalC_OP040Data(bytesarr);
                         break;
-                    case "C-OP040B":
+                    case "C-OP040A_2":
                         r = AnalC_OP040Data(bytesarr);
                         break;
                     case "OP010A":
@@ -510,6 +513,7 @@ namespace OPC_UA_Client_A50.BLL
                     case "OP210A":
                         r = AnalOP210Data(bytesarr);
                         break;
+                   
                     case "OP240A":
                         r = AnalOP240Data(bytesarr);
                         break;
@@ -775,19 +779,19 @@ namespace OPC_UA_Client_A50.BLL
                     prodid = Convert.ToInt32(prodRecord.Rows[0]["ProductID"]);
                     orderid = Convert.ToInt32(prodRecord.Rows[0]["WorkOrderID"]);
                 }
+                else
+                {
+                    return 21;//未获取到生产记录
+                }
                 for (int i = 500; i <= 884;)
                 {
                     string partcode = ConvertHelper.ByteToString(bytes, i, 32);
-                    sb2.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','电芯'),", prodid, orderid, partcode, 1, operatorNum, DateTime.Now, "OP020A");
+                    sb2.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','电芯'),", prodid, orderid, partcode, 1, operatorNum, DateTime.Now, StnModel.StationCode);
                     i = i + 32;
                 }
                 string str = sb2.ToString().Substring(0, sb2.Length - 1);
                 sqllist.Add(str);
-                //int res1 = sqlHelper.ExecNonQuery(str);
-                //if (res1 < 0)
-                //{
-                //    return 10;
-                //}
+                
                 #endregion
                 int deleteRes = DeleteQualitiesData(packID, stncode);
                 if (deleteRes == 0)
@@ -1211,7 +1215,18 @@ namespace OPC_UA_Client_A50.BLL
                 {
                     if (CheckDataIntegrity(list))
                     {
-                        if (!CheckOP040Data(packcode, resdatamat, voldatamat))
+                        if (CheckOP040Data(packcode, resdatamat, voldatamat))
+                        {
+                             bool r2=CheckDataVaid(StnModel.StationCode, "模组烘烤", packcode, ovendatamat);
+                            if (r2)
+                            {
+                            }
+                            else
+                            {
+                                return 14;
+                            }   
+                        }
+                        else
                         {
                             return 14;
                         }
@@ -1343,40 +1358,76 @@ namespace OPC_UA_Client_A50.BLL
         }
 
         /// <summary>
-        /// 解析 C-OP020电芯线
+        /// 解析 C-OP020电芯线，包括OCV电压电阻，两个高度值，K值
         /// </summary>
         /// <param name="bytesarray"></param>
         /// <param name="datastart"></param>
         public int AnalOCVData(byte[] bytesarray, int datastart)
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("insert into [tb|DianXinData](StationCode,DianXinCode,TestValueVol,TestValueRes,TestValueHig,TestName,TestTime,Result,TestValueHig2,PassStatus) values  ");
+            sb.AppendFormat("insert into [tb|DianXinData](StationCode,DianXinCode,TestValueVol,TestValueRes,TestValueHig,TestName,TestTime,Result,TestValueHig2,PassStatus,WorkOrderNr,Kvalue) values  ");
             short result1, result2, result3, result4;
             result1 = ConvertHelper.BytesToShort(bytesarray, 536);
             result2 = ConvertHelper.BytesToShort(bytesarray, 542);
             result3 = ConvertHelper.BytesToShort(bytesarray, 548);
             result4 = ConvertHelper.BytesToShort(bytesarray, 554);
             int result = (result1 == 1 && result2 == 1 && result3 == 1 && result4 == 1) ? 1 : 0;
+            string ordnum = ConvertHelper.ByteToString(bytesarray, 60, 40);
             string dx = ConvertHelper.ByteToString(bytesarray, 500, 32);//点芯二维码
+            if (dx.Length<24)
+            {
+                return 23;
+            }
             float vol = ConvertHelper.ByteArrtoFolat(bytesarray, 532);
             float res = ConvertHelper.ByteArrtoFolat(bytesarray, 538);
             float hig1 = ConvertHelper.ByteArrtoFolat(bytesarray, 544);
             float hig2 = ConvertHelper.ByteArrtoFolat(bytesarray, 550);
-
-            int workStatus = bytesarray[453];
-            sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}'),", StnModel.StationCode, dx, vol, res, hig1, "电芯检测", DateTime.Now, result, hig2, workStatus);
-
-            string sqlstr = sb.ToString().Substring(0, sb.Length - 1);
-            int r = sqlHelper.ExecNonQuery(sqlstr);
-            if (r > 0)
+            float kvalue = 0.0f;
+            //计算K值，存库
+            string sqlGetkValue = "exec SP_CalcOCVKvalue '" + dx + "','" + vol + "'";
+            DataTable kvalueTable= sqlHelper.GetDataTb(sqlGetkValue);
+            if (kvalueTable!=null)
             {
-                r = 0;
+                int dianxinCount = Convert.ToInt32(kvalueTable.Rows[0]["DianXinCount"]);
+                if (dianxinCount>1)
+                {
+                    return 25;//电芯二维码来料重复
+                }
+                else if(dianxinCount<1)
+                {
+                    return 24;//电芯二维码不在库里
+                }
+                else
+                {
+                    if (kvalueTable.Rows[0]["Result"].ToString()=="1")
+                    {
+                        kvalue = Convert.ToSingle(kvalueTable.Rows[0]["KValue"]);
+                        int workStatus = bytesarray[453];
+                        sb.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}'),", StnModel.StationCode, dx, vol, res, hig1, "电芯检测", DateTime.Now, result, hig2, workStatus, ordnum,kvalue);
+                        string sqlstr = sb.ToString().Substring(0, sb.Length - 1);
+                        int r = sqlHelper.ExecNonQuery(sqlstr);
+                        if (r > 0)
+                        {
+                            r = 0;
+                        }
+                        else
+                        {
+                            r = 10;
+                        }
+                        return r;
+                    }
+                    else
+                    {
+                        return 26; //ocv测试NG
+                    }
+                }
             }
             else
             {
-                r = 10;
+                return 9;
             }
-            return r;
+
+           
         }
 
         /// <summary>
@@ -1479,8 +1530,6 @@ namespace OPC_UA_Client_A50.BLL
             }
             return r;
         }
-
-
 
 
         public int UpdateKetiCode(string sncode, string code)
@@ -1749,5 +1798,30 @@ namespace OPC_UA_Client_A50.BLL
                 return 10;
             }
         }
+
+
+         private   int CalaDianXinYacha(List<string>  codelist)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("select  MAX(TestValueVol) -MIN(TestValueVol) as Result from [tb|DianXinData]  where  DianXinCode  in(");
+            for (int i = 0; i < codelist.Count; i++)
+            {
+                sb.AppendFormat("'{0},'", codelist[i]);
+            }
+            string sqlstr=  sb.ToString().Substring(0, sb.Length - 1)+")";
+            object  obj= sqlHelper.GetObjectVal(sqlstr);
+            float result = Convert.ToSingle(obj);
+            if (result<22)
+            {
+                return 0;
+            }
+            else
+            {
+                return 27;
+            }
+        }
+
+
+   
     }
 }

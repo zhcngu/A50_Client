@@ -221,6 +221,13 @@ namespace OPC_UA_Client_A50.BLL
         }
 
 
+
+        /// <summary>
+        /// 查询配方程序号
+        /// </summary>
+        /// <param name="ptcode"></param>
+        /// <param name="stncode"></param>
+        /// <returns></returns>
         public Dictionary<string,byte[]> GetFormulaData(string ptcode, string stncode)
         {
             string itemName, sqlstr;
@@ -228,26 +235,13 @@ namespace OPC_UA_Client_A50.BLL
             Dictionary<string, byte[]> dic = new Dictionary<string, byte[]>();
             if (stncode.Equals("OP050A"))//pack段上线工位
             {
-                string sqlstr1 = "select StationName,StationSeq,LineCode from tblStation  where LineCode='PACK'  and StationName  not in ('OP010A','OP020A','OP030M','OP040A') ORDER BY StationSeq ";
+                string sqlstr1 = "select StationName,StationSeq,LineCode from tblStation  where LineCode='PACK'  and StationName  not in ('OP010A','OP020A','OP020A-2','OP030M','OP040A') ORDER BY StationSeq ";
                 DataTable packstntb = sqlHelper.GetDataTb(sqlstr1);//把所有工位查出来
                 sqlstr = "select [PartNo],[StationCode],[StationSeq],[WorkStepNo],[Operation],[ProgramNo],[OperationDescription] from VI_Formula  where [PartNo]='" + ptcode + "'  order by  StationSeq ,WorkStepNo  ";
                 itemName = ".292,b,192";
                 buff = new byte[192];
                 DataTable formutb = sqlHelper.GetDataTb(sqlstr);
-                #region MyRegion
-                // 等配方修改完 在做逻辑
-                //var stnlist = (from it in formutb.AsEnumerable() select it.Field<string>("StationCode")).Distinct().ToList();
-                //int j = 0;
-                //for (int i = 0; i < stnlist.Count; i++)
-                //{
-                //    DataRow[] rows = formutb.Select("StationCode='" + stnlist[i] + "'");
-                //    for (int k = 0; k < rows.Length; k++)
-                //    {
-                //        buff[j + k] = Convert.ToByte(rows[k]["ProgramNo"]);
-                //    }
-                //    j += 8;
-                //}
-                #endregion
+
                 #region   配方
                 int j = 0;
                 for (int i = 0; i < packstntb.Rows.Count; i++)
@@ -348,6 +342,46 @@ namespace OPC_UA_Client_A50.BLL
             {
                 LogHelper.Write("获取返修数据时异常:" + ex.Message, "system");
                 return null;
+            }
+        }
+
+
+        /// <summary>
+        /// 获取电芯OCV测试结果
+        /// </summary>
+        /// <param name="dianxin">电芯二维码</param>
+        /// <param name="vol">测试电压值</param>
+        /// <returns></returns>
+        public int GetDianXinOCVTestResult(string  dianxin,float  vol)
+        {
+            string sqlGetkValue = "exec SP_CalcOCVKvalue '" + dianxin + "','" + vol + "'";
+            DataTable  tb=  sqlHelper.GetDataTb(sqlGetkValue);
+            if (tb != null)
+            {
+                int dianxinCount = Convert.ToInt32(tb.Rows[0]["DianXinCount"]);
+                if (dianxinCount > 1)
+                {
+                    return 25;//电芯二维码来料重复
+                }
+                else if (dianxinCount < 1)
+                {
+                    return 24;//电芯二维码不在库里
+                }
+                else
+                {
+                    if (tb.Rows[0]["Result"].ToString() == "1")
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        return 26;//ocv测试NG
+                    }
+                }
+            }
+            else
+            {
+                return 9;
             }
         }
     }

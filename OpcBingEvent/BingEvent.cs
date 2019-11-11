@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,9 +16,15 @@ namespace OPC_UA_Client_A50.OpcBingEvent
 {
     public class BingEvent
     {
+        public BingEvent(Socket socket)
+        {
+            messagaBLL = new SaveMessagaBLL();
+            SocketClient = socket;
+        }
         public BingEvent()
         {
             messagaBLL = new SaveMessagaBLL();
+          
         }
         public BingEvent(APPConfiguration appconfig,StationModel stnmodel,BaseProtocol basepro)
         {
@@ -74,6 +81,7 @@ namespace OPC_UA_Client_A50.OpcBingEvent
             return my_MonitorNodes;
         }
 
+        public  Socket SocketClient { get; set; }
         public void DataChangeBing()
         {
             object monitoredItemServerHandle = null;
@@ -90,7 +98,31 @@ namespace OPC_UA_Client_A50.OpcBingEvent
             }
           //  MyServer.DataChangedEvent += new DataChangedEvent(ClientDataChanged);
         }
-        
+        private int SendPackidToMark(string packid)
+        {
+            try
+            {
+                byte[] buff = Encoding.Default.GetBytes(packid);
+                SocketClient.Send(buff);
+                byte[] readbuff = new byte[20];
+                int r = SocketClient.Receive(readbuff);
+                string result = Encoding.Default.GetString(readbuff, 0, r);
+                if (result == "ok")
+                {
+                    return 0;
+                }
+                else
+                {
+                    return 22;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Write("发送packID给打标机时异常:" + ex.Message, "system");
+                return 22;
+            }
+        }
 
         public void ClientDataChanged(List<object> clientHandleList, List<DataValue> valueList,StationModel stnmodel, BaseProtocol protocol)
         {
@@ -148,6 +180,18 @@ namespace OPC_UA_Client_A50.OpcBingEvent
                                     opchelper.SendReaddowngDownCmd();
                                     opchelper.SendErrorsCode(0);
                                     messagaBLL.WriteMessage("发送下线完成", stnmodel.StationCode);
+                                    if (stnmodel.StationCode=="OP220A"&& array[453]==1)
+                                    {
+                                        string packid = ConvertHelper.ByteToString(array, 120, 70);
+                                        if (SendPackidToMark(packid) == 0)
+                                        {
+                                            messagaBLL.WriteMessage("发送PackID:" + packid + "至打标机", stnmodel.StationCode);
+                                        }
+                                        else
+                                        {
+                                            messagaBLL.WriteMessage("发送PackID:" + packid + "至打标机时,打标机未响应", stnmodel.StationCode);
+                                        }
+                                    }
                                 }
                                 else
                                 {
