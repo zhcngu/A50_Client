@@ -22,6 +22,14 @@ namespace OPC_UA_Client_A50.BLL
             sqlHelper.ExecNonQuery(sb.ToString());
 
         }
-       
+
+        public void WriteMessage(string message, string stncode,int  errorCode)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat("insert into tblLogInfo (LogLevel,OccruTime,UserCode,StationNo,Info)  values ('{0}','{1}','{2}','{3}','{4}')", errorCode, DateTime.Now, "", stncode, message);
+            sqlHelper.ExecNonQuery(sb.ToString());
+
+        }
+
     }
 }

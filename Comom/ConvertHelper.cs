@@ -86,22 +86,19 @@ namespace OPC_UA_Client_A50.Comom
 
         public static DateTime BytesToTime(byte[] srcdatas, int index)
         {
-            //string year = "20" +  Convert.ToString( srcdatas[index],16);
-            //string mon = Convert.ToString(srcdatas[index+1],16);
-            //string day = Convert.ToString(srcdatas[index + 2],16);
-            //string hour = Convert.ToString(srcdatas[index + 3],16);
-            //string min = Convert.ToString(srcdatas[index + 4],16);
-            //string sec = Convert.ToString(srcdatas[index + 5],16);
-            //string msec = Convert.ToString(srcdatas[index + 6],16);//毫秒前2位
-            byte year = ConvertByteToBCD(srcdatas[index]);
-            byte mon = ConvertByteToBCD(srcdatas[index+1]);
-            byte day = ConvertByteToBCD(srcdatas[index+2]);
-            byte hour = ConvertByteToBCD(srcdatas[index+3]);
-            byte min = ConvertByteToBCD(srcdatas[index+4]);
-            byte sec = ConvertByteToBCD(srcdatas[index+5]);
-            byte msec = ConvertByteToBCD(srcdatas[index+6]);
-            string time= string.Format("20{0}-{1}-{2} {3}:{4}:{5}.{6}", year, mon, day, hour, min, sec, msec);
-            return Convert.ToDateTime(time);
+      
+            string timeOfYear = DateTime.Now.Year.ToString().Substring(0, 2);
+            byte year = ConvertBCDByteToByte(srcdatas[index]);
+            byte mon = ConvertBCDByteToByte(srcdatas[index+1]);
+            byte day = ConvertBCDByteToByte(srcdatas[index+2]);
+            byte hour = ConvertBCDByteToByte(srcdatas[index+3]);
+            byte min = ConvertBCDByteToByte(srcdatas[index+4]);
+            byte sec = ConvertBCDByteToByte(srcdatas[index+5]);
+            byte msec = ConvertBCDByteToByte(srcdatas[index+6]);
+            string timestr= string.Format("{0}{1}-{2}-{3} {4}:{5}:{6}.{7}", timeOfYear, year, mon, day, hour, min, sec, msec);
+            DateTime time = new DateTime();
+            DateTime.TryParse(timestr, out time);
+            return time;
         }
         private static byte ConvertBCDToByte(byte b)//byte转换为BCD码
         {
@@ -112,7 +109,12 @@ namespace OPC_UA_Client_A50.Comom
             return (byte)((b1 << 4) | b2);
         }
 
-        public static byte ConvertByteToBCD(byte b)
+        /// <summary>
+        /// 将PLC那边BCD编码的字节数，转换成 普通10进制的字节数
+        /// </summary>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static byte ConvertBCDByteToByte(byte b)
         {
             //高四位  
             byte b1 = (byte)((b >> 4) & 0xF);
@@ -120,6 +122,27 @@ namespace OPC_UA_Client_A50.Comom
             byte b2 = (byte)(b & 0xF);
 
             return (byte)(b1 * 10 + b2);
+        }
+
+
+
+        /// <summary>
+        /// 计算 0001-01-01 00:00:00 到现在的毫秒数。
+        /// </summary>
+        /// <returns></returns>
+        public static long GetTimeStamp()
+        {
+            return (long)(DateTime.Now.ToLocalTime() -DateTime.MinValue).TotalSeconds;
+        }
+
+        /// <summary>
+        /// 计算 0001-01-01 00:00:00 到指定 <see cref="DateTime"/> 的毫秒数。
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
+        public static long GetTimeStamp(DateTime dateTime)
+        {
+            return dateTime.Ticks;
         }
 
     }

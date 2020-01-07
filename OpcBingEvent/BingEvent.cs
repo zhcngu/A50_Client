@@ -39,7 +39,7 @@ namespace OPC_UA_Client_A50.OpcBingEvent
             //opcbll = new OpcBll();
             //opcbll.StnModel = stnmodel;
            // opcbll.myopcHelper = opchelper;
-            Task.Run( ()=>{ SendHeart(); });
+    
           
         }
 
@@ -65,14 +65,14 @@ namespace OPC_UA_Client_A50.OpcBingEvent
             my_MonitorNodes = new NodeIdCollection();
             string  comDB=  MyStationModel.DataReadDB;//握手信号交互DB块
             my_MonitorNodes.Add(new NodeId(comDB + MyStnBaseProtocol.PLC_MES_Heart, nameSpaceIndex));//心跳
-            my_MonitorNodes.Add(new NodeId(comDB + MyStnBaseProtocol.PLC_MES_Remark1, nameSpaceIndex));//备用1
+            my_MonitorNodes.Add(new NodeId(comDB + MyStnBaseProtocol.PLC_MES_CellNG, nameSpaceIndex));//电芯NG剔料
             my_MonitorNodes.Add(new NodeId(comDB + MyStnBaseProtocol.PLC_MES_DataRequest, nameSpaceIndex));//上线请求
             my_MonitorNodes.Add(new NodeId(comDB + MyStnBaseProtocol.PLC_MES_DataSave, nameSpaceIndex));//下线请求
             my_MonitorNodes.Add(new NodeId(comDB + MyStnBaseProtocol.PLC_MES_ReadBom, nameSpaceIndex));//读BOM
             my_MonitorNodes.Add(new NodeId(comDB + MyStnBaseProtocol.PLC_MES_RepairRequest, nameSpaceIndex));//返修上线
             my_MonitorNodes.Add(new NodeId(comDB + MyStnBaseProtocol.PLC_MES_RepairSave, nameSpaceIndex));//返修下线
-            my_MonitorNodes.Add(new NodeId(comDB + MyStnBaseProtocol.PLC_MES_Remark2, nameSpaceIndex));//备用2
-            my_MonitorNodes.Add(new NodeId(comDB + MyStnBaseProtocol.PLC_MES_OCV_Test, nameSpaceIndex));//备用9
+            my_MonitorNodes.Add(new NodeId(comDB + MyStnBaseProtocol.PLC_MES_MaterialAndonRequest, nameSpaceIndex));//PLC安东物料拉动
+            my_MonitorNodes.Add(new NodeId(comDB + MyStnBaseProtocol.PLC_MES_OCV_Test, nameSpaceIndex));//OCV测试
             monitorClientHandl = new int[9];
             for (int i = 0; i < 9; i++)
             {
@@ -126,9 +126,9 @@ namespace OPC_UA_Client_A50.OpcBingEvent
 
         public void ClientDataChanged(List<object> clientHandleList, List<DataValue> valueList,StationModel stnmodel, BaseProtocol protocol)
         {
+            OpcHelper opchelper = new OpcHelper(protocol, stnmodel, stnmodel.ServerIndex);
             try
             {
-                OpcHelper opchelper = new OpcHelper(protocol, stnmodel, stnmodel.ServerIndex);
                 OpcBll bll = new OpcBll();
                 bll.myopcHelper = opchelper;
                 bll.StnModel = stnmodel;
@@ -145,18 +145,18 @@ namespace OPC_UA_Client_A50.OpcBingEvent
                         case 1://电芯NG剔料,记录过点，然后电芯补一个订单
                             if (value)
                             {
-                                messagaBLL.WriteMessage("收到电芯NG剔料请求", stnmodel.StationCode);
+                                messagaBLL.WriteMessage("收到电芯NG剔料请求", stnmodel.StationCode,0);
                                 byte[] array = opchelper.ReadPlcData();
                                 AnalDataHelper a = new AnalDataHelper(stnmodel);
                                 int res = a.DianXinNg(array);
                                 if (res == 0)
                                 {
-                                    messagaBLL.WriteMessage("发送电芯NG剔料完成", stnmodel.StationCode);
+                                    messagaBLL.WriteMessage("发送电芯NG剔料完成", stnmodel.StationCode,res);
                                     opchelper.SendDianXinNgOk();
                                 }
                                 else
                                 {
-                                    messagaBLL.WriteMessage("发送电芯NG剔料失败，发送错误代码" + res, stnmodel.StationCode);
+                                    messagaBLL.WriteMessage("发送电芯NG剔料失败，发送错误代码" + res, stnmodel.StationCode,res);
                                     opchelper.SendErrorsCode((byte)res);
                                 }
                             }
@@ -164,71 +164,71 @@ namespace OPC_UA_Client_A50.OpcBingEvent
                         case 2://上线请求
                             if (value)
                             {
-                                messagaBLL.WriteMessage("收到上线请求", stnmodel.StationCode);
+                                messagaBLL.WriteMessage("收到上线请求", stnmodel.StationCode,0);
                                 bll.InitData();
                             }
                             break;
                         case 3://下线请求
                             if (value)
                             {
-                                messagaBLL.WriteMessage("收到下线请求", stnmodel.StationCode);
+                                messagaBLL.WriteMessage("收到下线请求", stnmodel.StationCode,0);
                                 byte[] array = opchelper.ReadPlcData();
                                 AnalDataHelper a = new AnalDataHelper(stnmodel);
                                 int res = a.AnalData(array);
                                 if (res == 0)
                                 {
-                                    opchelper.SendReaddowngDownCmd();
-                                    opchelper.SendErrorsCode(0);
-                                    messagaBLL.WriteMessage("发送下线完成", stnmodel.StationCode);
-                                    if (stnmodel.StationCode=="OP220A"&& array[453]==1)
+                                    if (stnmodel.StationCode == "OP240A")
                                     {
-                                        string packid = ConvertHelper.ByteToString(array, 120, 70);
-                                        if (SendPackidToMark(packid) == 0)
+                                        byte[] tagValues;
+                                        tagValues = opchelper.ReadRepairPlcData();
+                                        int temp = a.SaveOP240TagValue(tagValues);
+                                        if (temp != 0)
                                         {
-                                            messagaBLL.WriteMessage("发送PackID:" + packid + "至打标机", stnmodel.StationCode);
-                                        }
-                                        else
-                                        {
-                                            messagaBLL.WriteMessage("发送PackID:" + packid + "至打标机时,打标机未响应", stnmodel.StationCode);
+                                            opchelper.SendErrorsCode(50);
+                                            messagaBLL.WriteMessage("保存TAG数据失败发送错误代码:" + 50, stnmodel.StationCode, 50);
+                                            return;
                                         }
                                     }
+                                    opchelper.SendReaddowngDownCmd();
+                                    opchelper.SendErrorsCode(0);
+                                    messagaBLL.WriteMessage("发送下线完成", stnmodel.StationCode,0);
                                 }
                                 else
                                 {
                                     opchelper.SendErrorsCode((byte)res);
-                                    messagaBLL.WriteMessage("发送错误代码"+ res, stnmodel.StationCode);
+                                    messagaBLL.WriteMessage("发送错误代码"+ res, stnmodel.StationCode,res);
                                 }
                             }
                             break;
                         case 4://读bom
                             if (value)
                             {
-                                messagaBLL.WriteMessage("收到BOM比对请求" , stnmodel.StationCode);
+                                messagaBLL.WriteMessage("收到BOM比对请求" , stnmodel.StationCode,0);
                                 bll.CheckBom();
                             }
                             break;
                         case 5://返修上线
                             if (value)
                             {
-                                messagaBLL.WriteMessage("收到返修上线请求", stnmodel.StationCode);
+                                messagaBLL.WriteMessage("收到返修上线请求", stnmodel.StationCode,0);
                                 int  res= bll.InitRepairData();
                                 if (res==0)
                                 {
                                     opchelper.SendRepairWriteDown();
                                     opchelper.SendErrorsCode(0);
-                                    messagaBLL.WriteMessage("发送返修上线完成", stnmodel.StationCode);
+                                    messagaBLL.WriteMessage("发送返修上线完成", stnmodel.StationCode,0);
                                 }
                                 else
                                 {
                                     opchelper.SendErrorsCode((byte)res);
-                                    messagaBLL.WriteMessage("返修上线失败,发送错误代码"+ res, stnmodel.StationCode);
+                                    messagaBLL.WriteMessage("返修上线失败,发送错误代码"+ res, stnmodel.StationCode,res);
                                 }
                             }
                             break;
                         case 6://返修下线
                             if (value)
                             {
-                                messagaBLL.WriteMessage("收到返修下线请求", stnmodel.StationCode);
+                                messagaBLL.WriteMessage("收到返修下线请求", stnmodel.StationCode,0);
                                 byte[] array = opchelper.ReadRepairPlcData();
                                 AnalDataHelper a = new AnalDataHelper(stnmodel);
                                 int  r=a.SaveTagValue(array);
@@ -236,19 +236,34 @@ namespace OPC_UA_Client_A50.OpcBingEvent
                                 {
                                     opchelper.SendRepairReadDown();
                                     opchelper.SendErrorsCode(0);
-                                    messagaBLL.WriteMessage("发送返修下线完成", stnmodel.StationCode);
+                                    messagaBLL.WriteMessage("发送返修下线完成", stnmodel.StationCode,0);
                                 }
                                 else
                                 {
                                     opchelper.SendErrorsCode((byte)r);
-                                    messagaBLL.WriteMessage("返修下线失败,发送错误代码" + r, stnmodel.StationCode);
+                                    messagaBLL.WriteMessage("返修下线失败,发送错误代码" + r, stnmodel.StationCode,0);
                                 }
                             }
                             break;
-                        case 7:
+                        case 7://andon物料拉动
                             if (value)
                             {
-                               
+                                messagaBLL.WriteMessage("收到物料拉动请求" , stnmodel.StationCode, 0);
+                                string materialNum = opchelper.ReadMaterialNum();
+                                string operatornum = opchelper.ReadOperatorNum();
+                                int  res=AndonHelper.SendMaterialPull(materialNum, operatornum, stnmodel.StationCode);
+                                if (res==0)
+                                {
+                                    opchelper.SendMaterialPullOk();
+                                    opchelper.SendErrorsCode(0);
+                                    messagaBLL.WriteMessage("发送物料拉动完成", stnmodel.StationCode, 0);
+                                }
+                                else
+                                {
+                                    opchelper.SendMaterialPullNG();
+                                    //opchelper.SendErrorsCode((byte)res);//PLC那边不要这个错误代码
+                                    messagaBLL.WriteMessage("发送物料拉动失败,发送错误代码:"+res, stnmodel.StationCode, res);
+                                }
                             }
                             break;
                         case 8://OCV 检测
@@ -265,6 +280,7 @@ namespace OPC_UA_Client_A50.OpcBingEvent
             catch (Exception ex)
             {
                 LogHelper.Write(ex, "BingEvent");
+                opchelper.SendErrorsCode(100);
             }
         }
         public void InitOpc()
@@ -304,25 +320,7 @@ namespace OPC_UA_Client_A50.OpcBingEvent
             e.Accept = true;
         }
       
-        private  void SendHeart()
-        {
-            try
-            {
-                bool r = true;
-                bool heartbeat = true;
-                while (r)
-                {
-                    heartbeat = !heartbeat;
-                  //  r= myopcHelper.SendHeartBit(heartbeat);
-                    System.Threading.Thread.Sleep(3000);
-                }
-            }
-            catch (Exception)
-            {
-
-            }
-            
-        }
+  
        
 
          public void ConnectServer(StationModel  stationmodel, APPConfiguration appconfig, BaseProtocol baseProtocol)
@@ -363,13 +361,13 @@ namespace OPC_UA_Client_A50.OpcBingEvent
           //  my_MonitorNodes = new NodeIdCollection();
             string comDB = stationModel.DataReadDB;//握手信号交互DB块
            // stationModel.MonitorNodes.Add(new NodeId(comDB + baseProtocol.PLC_MES_Heart, nameSpaceIndex));//心跳
-            stationModel.MonitorNodes.Add(new NodeId(comDB + baseProtocol.PLC_MES_Remark1, nameSpaceIndex));//电芯NG剔料
+            stationModel.MonitorNodes.Add(new NodeId(comDB + baseProtocol.PLC_MES_CellNG, nameSpaceIndex));//电芯NG剔料
             stationModel.MonitorNodes.Add(new NodeId(comDB + baseProtocol.PLC_MES_DataRequest, nameSpaceIndex));//上线请求 
             stationModel.MonitorNodes.Add(new NodeId(comDB + baseProtocol.PLC_MES_DataSave, nameSpaceIndex));//下线请求
             stationModel.MonitorNodes.Add(new NodeId(comDB + baseProtocol.PLC_MES_ReadBom, nameSpaceIndex));//读BOM
             stationModel.MonitorNodes.Add(new NodeId(comDB + baseProtocol.PLC_MES_RepairRequest, nameSpaceIndex));//返修上线
             stationModel.MonitorNodes.Add(new NodeId(comDB + baseProtocol.PLC_MES_RepairSave, nameSpaceIndex));//返修下线
-            stationModel.MonitorNodes.Add(new NodeId(comDB + baseProtocol.PLC_MES_Remark2, nameSpaceIndex));//备用2
+            stationModel.MonitorNodes.Add(new NodeId(comDB + baseProtocol.PLC_MES_MaterialAndonRequest, nameSpaceIndex));//andon物料拉动
             stationModel.MonitorNodes.Add(new NodeId(comDB + baseProtocol.PLC_MES_OCV_Test, nameSpaceIndex));//OCV测试
             stationModel.MonitorClientHandl= new int[8];
             for (int i = 0; i < 8; i++)

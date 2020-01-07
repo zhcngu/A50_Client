@@ -34,24 +34,26 @@ namespace OPC_UA_Client_A50.Model
         public string DataLength { get; set; }
         public string DBLength { get; set; }
 
+        public  string FrontStation { get; set; }
+
     }
     [Serializable]
     public class BaseProtocol
     {
         public string PLC_MES_Heart { get; set; }
-        public string PLC_MES_Remark1 { get; set; }
+        public string PLC_MES_CellNG { get; set; }
         public string PLC_MES_DataRequest { get; set; }
         public string PLC_MES_DataSave { get; set; }
         public string PLC_MES_ReadBom { get; set; }
         public string PLC_MES_RepairRequest { get; set; }
         public string PLC_MES_RepairSave { get; set; }
-        public string PLC_MES_Remark2 { get; set; }
+        public string PLC_MES_MaterialAndonRequest { get; set; }
         public string PLC_MES_OCV_Test { get; set; }
         public string PLC_MES_Index { get; set; }
 
 
         public string MES_PLC_Heart { get; set; }
-        public string MES_PLC_Ready { get; set; }
+        public string MES_PLC_CellRemoveOK { get; set; }
         public string MES_PLC_Writing { get; set; }
         public string MES_PLC_WriteDowd { get; set; }
         public string MES_PLC_Reading { get; set; }
@@ -73,6 +75,11 @@ namespace OPC_UA_Client_A50.Model
         public string MES_PLC_UniqOK { get; set; }
 
         public string MES_PLC_UniqNG { get; set; }
+
+
+        public string MES_PLC_MaterialPullOK { get; set; }
+
+        public string MES_PLC_MaterialPullNG { get; set; }
 
     }
     [Serializable]

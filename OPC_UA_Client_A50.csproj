@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Opc.Ua.Client, Version=1.0.250.1, Culture=neutral, PublicKeyToken=22186a540fc0b044, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Users\Administrator\Desktop\dll\Opc.Ua.Client.dll</HintPath>
@@ -41,6 +44,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Users\Administrator\Desktop\dll\Opc.Ua.Core.dll</HintPath>
     </Reference>
+    <Reference Include="RestSharp, Version=106.6.10.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
+      <HintPath>packages\RestSharp.106.6.10\lib\net452\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
@@ -48,6 +54,7 @@
     <Reference Include="System.Management" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -70,6 +77,7 @@
     <Compile Include="BLL\OpcBll.cs" />
     <Compile Include="BLL\ProdDataBll.cs" />
     <Compile Include="BLL\SaveMessagaBLL.cs" />
+    <Compile Include="Comom\AndonHelper.cs" />
     <Compile Include="Comom\ConfigHelper.cs" />
     <Compile Include="Comom\ConvertHelper.cs" />
     <Compile Include="Comom\LogHelper.cs" />
@@ -111,6 +119,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

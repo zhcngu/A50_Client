@@ -26,7 +26,7 @@ namespace OPC_UA_Client_A50
             InitializeComponent();
         }
 
-        Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+    
         BingEvent eve = new BingEvent();
         List<StationModel> stationModelsList;
         BaseProtocol protocol;
@@ -53,9 +53,16 @@ namespace OPC_UA_Client_A50
         StationModel OP240;
 
         StationModel OP010;
-        StationModel OP020;
-        StationModel OP020_2;
+        StationModel OP020A1_1;
+        StationModel OP020A1_2;
+        StationModel OP020A1_3;
+        StationModel OP020A2_1;
+        StationModel OP020A2_2;
+        StationModel OP020A2_3;
         StationModel OP040;
+        StationModel OP040_2;
+        StationModel OP040_3;
+        StationModel OP040_4;
         StationModel OP050;
 
         StationModel OP100A;
@@ -72,6 +79,8 @@ namespace OPC_UA_Client_A50
         StationModel  OP055;
         StationModel OP135;
         StationModel OP155;
+        StationModel OP100B;
+        
 
         private void Btnconn_Click(object sender, EventArgs e)
         {
@@ -85,26 +94,7 @@ namespace OPC_UA_Client_A50
             }
             stationModelsList = p.StationModelList;
             protocol = p.STN_BaseProtocol;
-            //foreach (StationModel item in p.StationModelList)
-            //{
-            //    if (Convert.ToBoolean(item.STN_Status))
-            //    {
-            //        BingEvent eve = new BingEvent(config, item, p.STN_BaseProtocol);
-            //    }
-            //}
-            try
-            {
-                int port = Convert.ToInt32(ConfigHelper.GetConfigValue("MarkPort"));
-                socket.ReceiveTimeout = 13000;
-                socket.SendTimeout = 3000;
-                socket.Connect(ConfigHelper.GetConfigValue("MarkIP"), port);
-                eve.SocketClient = socket;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("链接打标机出错");
-            }
-            C_OP010 = p.StationModelList.Where((item) => { return item.StationCode == "C-OP010A_1"; }).First();
+            C_OP010 = p.StationModelList.Where((item) => { return item.StationCode == "C-OP010A1"; }).First();
             if   ( Convert.ToBoolean( C_OP010.STN_Status))
             {
                 eve.ConnectServer(C_OP010, config, p.STN_BaseProtocol);
@@ -112,35 +102,35 @@ namespace OPC_UA_Client_A50
                 C_OP010.StationOPCServer.DataChangedEvent += C_OP010_StationOPCServer_DataChangedEvent;
                 
             }
-            C_OP020_1 = p.StationModelList.Where(item => { return item.StationCode == "C-OP020A_1-1"; }).First();
+            C_OP020_1 = p.StationModelList.Where(item => { return item.StationCode == "C-OP020A1_1"; }).First();
             if (Convert.ToBoolean(C_OP020_1.STN_Status))
             {
                 eve.ConnectServer(C_OP020_1, config, p.STN_BaseProtocol);
                 eve.CreateMySubscipition(C_OP020_1, config);
                 C_OP020_1.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(C_OP020_1_StationOPCServer_DataChangedEvent);
             }
-            stnc_op020_2 = p.StationModelList.Where(item => { return item.StationCode == "C-OP020A_1-2"; }).First();
+            stnc_op020_2 = p.StationModelList.Where(item => { return item.StationCode == "C-OP020A1_2"; }).First();
             if (Convert.ToBoolean(stnc_op020_2.STN_Status))
             {
                 eve.ConnectServer(stnc_op020_2, config, p.STN_BaseProtocol);
                 eve.CreateMySubscipition(stnc_op020_2, config);
                 stnc_op020_2.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(STN_COP020_2_StationOPCServer_DataChangedEvent);
             }
-            stnc_op020_3 = p.StationModelList.Where(item => { return item.StationCode == "C-OP020A_1-3"; }).First();
+            stnc_op020_3 = p.StationModelList.Where(item => { return item.StationCode == "C-OP020A1_3"; }).First();
             if (Convert.ToBoolean(stnc_op020_3.STN_Status))
             {
                 eve.ConnectServer(stnc_op020_3, config, p.STN_BaseProtocol);
                 eve.CreateMySubscipition(stnc_op020_3, config);
                 stnc_op020_3.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(STN_COP020_3_StationOPCServer_DataChangedEvent);
             }
-            stnc_op030_2 = p.StationModelList.Where(item => { return item.StationCode == "C-OP030A_1-2"; }).First();
+            stnc_op030_2 = p.StationModelList.Where(item => { return item.StationCode == "C-OP030A1_2"; }).First();
             if (Convert.ToBoolean(stnc_op030_2.STN_Status))
             {
                 eve.ConnectServer(stnc_op030_2, config, p.STN_BaseProtocol);
                 eve.CreateMySubscipition(stnc_op030_2, config);
                 stnc_op030_2.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(STN_COP030_2_StationOPCServer_DataChangedEvent);
             }
-            stnc_op030_3 = p.StationModelList.Where(item => { return item.StationCode == "C-OP030A_1-3"; }).First();
+            stnc_op030_3 = p.StationModelList.Where(item => { return item.StationCode == "C-OP030A1_3"; }).First();
             if (Convert.ToBoolean(stnc_op030_3.STN_Status))
             {
                 eve.ConnectServer(stnc_op030_3, config, p.STN_BaseProtocol);
@@ -182,19 +172,54 @@ namespace OPC_UA_Client_A50
                 eve.CreateMySubscipition(OP010, config);
                 OP010.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP010_StationOPCServer_DataChangedEvent);
             }
-            OP020 = p.StationModelList.Where(item => { return item.StationCode == "OP020A"; }).First();
-            if (Convert.ToBoolean(OP020.STN_Status))
+            OP020A1_1 = p.StationModelList.Where(item => { return item.StationCode == "OP020A1_1"; }).First();
+            if (Convert.ToBoolean(OP020A1_1.STN_Status))
             {
-                eve.ConnectServer(OP020, config, p.STN_BaseProtocol);
-                eve.CreateMySubscipition(OP020, config);
-                OP020.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP020_StationOPCServer_DataChangedEvent);
+                eve.ConnectServer(OP020A1_1, config, p.STN_BaseProtocol);
+                eve.CreateMySubscipition(OP020A1_1, config);
+                OP020A1_1.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP020A1_1_StationOPCServer_DataChangedEvent);
             }
-            OP040 = p.StationModelList.Where(item => { return item.StationCode == "OP040A"; }).First();
+            OP020A1_2 = p.StationModelList.Where(item => { return item.StationCode == "OP020A1_3"; }).First();
+            if (Convert.ToBoolean(OP020A1_2.STN_Status))
+            {
+                eve.ConnectServer(OP020A1_2, config, p.STN_BaseProtocol);
+                eve.CreateMySubscipition(OP020A1_2, config);
+                OP020A1_2.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP020A1_2_StationOPCServer_DataChangedEvent);
+            }
+            OP020A1_3 = p.StationModelList.Where(item => { return item.StationCode == "OP020A1_4"; }).First();
+            if (Convert.ToBoolean(OP020A1_3.STN_Status))
+            {
+                eve.ConnectServer(OP020A1_3, config, p.STN_BaseProtocol);
+                eve.CreateMySubscipition(OP020A1_3, config);
+                OP020A1_3.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP020A1_3_StationOPCServer_DataChangedEvent);
+            }
+            OP040 = p.StationModelList.Where(item => { return item.StationCode == "OP040A_1"; }).First();
             if (Convert.ToBoolean(OP040.STN_Status))
             {
                 eve.ConnectServer(OP040, config, p.STN_BaseProtocol);
                 eve.CreateMySubscipition(OP040, config);
                 OP040.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP040_StationOPCServer_DataChangedEvent);
+            }
+            OP040_2 = p.StationModelList.Where(item => { return item.StationCode == "OP040A_2"; }).First();
+            if (Convert.ToBoolean(OP040_2.STN_Status))
+            {
+                eve.ConnectServer(OP040_2, config, p.STN_BaseProtocol);
+                eve.CreateMySubscipition(OP040_2, config);
+                OP040_2.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP040_2_StationOPCServer_DataChangedEvent);
+            }
+            OP040_3 = p.StationModelList.Where(item => { return item.StationCode == "OP040A_3"; }).First();
+            if (Convert.ToBoolean(OP040_3.STN_Status))
+            {
+                eve.ConnectServer(OP040_3, config, p.STN_BaseProtocol);
+                eve.CreateMySubscipition(OP040_3, config);
+                OP040_3.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP040_3_StationOPCServer_DataChangedEvent);
+            }
+            OP040_4 = p.StationModelList.Where(item => { return item.StationCode == "OP040A_4"; }).First();
+            if (Convert.ToBoolean(OP040_4.STN_Status))
+            {
+                eve.ConnectServer(OP040_4, config, p.STN_BaseProtocol);
+                eve.CreateMySubscipition(OP040_4, config);
+                OP040_4.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP040_4_StationOPCServer_DataChangedEvent);
             }
             OP050 = p.StationModelList.Where(item => { return item.StationCode == "OP050A"; }).First();
             if (Convert.ToBoolean(OP050.STN_Status))
@@ -203,7 +228,7 @@ namespace OPC_UA_Client_A50
                 eve.CreateMySubscipition(OP050, config);
                 OP050.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP050_StationOPCServer_DataChangedEvent);
             }
-            OP100A = p.StationModelList.Where(item => { return item.StationCode == "OP100A"; }).First();
+            OP100A = p.StationModelList.Where(item => { return item.StationCode == "OP100A_1"; }).First();
             if (Convert.ToBoolean(OP100A.STN_Status))
             {
                 eve.ConnectServer(OP100A, config, p.STN_BaseProtocol);
@@ -217,15 +242,15 @@ namespace OPC_UA_Client_A50
                 eve.CreateMySubscipition(OP070A, config);
                 OP070A.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP070A_StationOPCServer_DataChangedEvent);
             }
-            OP130B = p.StationModelList.Where(item => { return item.StationCode == "OP130B"; }).First();
+            OP130B = p.StationModelList.Where(item => { return item.StationCode == "OP130A_2"; }).First();
             if (Convert.ToBoolean(OP130B.STN_Status))
             {
                 eve.ConnectServer(OP130B, config, p.STN_BaseProtocol);
                 eve.CreateMySubscipition(OP130B, config);
                 OP130B.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP130B_StationOPCServer_DataChangedEvent);
             }
-            OP130A = p.StationModelList.Where(item => { return item.StationCode == "OP130A"; }).First();
-            if (Convert.ToBoolean(OP130B.STN_Status))
+            OP130A = p.StationModelList.Where(item => { return item.StationCode == "OP130A_1"; }).First();
+            if (Convert.ToBoolean(OP130A.STN_Status))
             {
                 eve.ConnectServer(OP130A, config, p.STN_BaseProtocol);
                 eve.CreateMySubscipition(OP130A, config);
@@ -238,35 +263,35 @@ namespace OPC_UA_Client_A50
                 eve.CreateMySubscipition(OP210, config);
                 OP210.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP210_StationOPCServer_DataChangedEvent);
             }
-            OP200A = p.StationModelList.Where(item => { return item.StationCode == "OP200A"; }).First();
+            OP200A = p.StationModelList.Where(item => { return item.StationCode == "OP200A_1"; }).First();
             if (Convert.ToBoolean(OP200A.STN_Status))
             {
                 eve.ConnectServer(OP200A, config, p.STN_BaseProtocol);
                 eve.CreateMySubscipition(OP200A, config);
                 OP200A.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP200A_StationOPCServer_DataChangedEvent);
             }
-            OP200B = p.StationModelList.Where(item => { return item.StationCode == "OP200B"; }).First();
+            OP200B = p.StationModelList.Where(item => { return item.StationCode == "OP200A_2"; }).First();
             if (Convert.ToBoolean(OP200B.STN_Status))
             {
                 eve.ConnectServer(OP200B, config, p.STN_BaseProtocol);
                 eve.CreateMySubscipition(OP200B, config);
                 OP200B.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP200B_StationOPCServer_DataChangedEvent);
             }
-            C_OP040_1 = p.StationModelList.Where(item => { return item.StationCode == "C-OP040A_1"; }).First();
+            C_OP040_1 = p.StationModelList.Where(item => { return item.StationCode == "C-OP040A1"; }).First();
             if (Convert.ToBoolean(C_OP040_1.STN_Status))
             {
                 eve.ConnectServer(C_OP040_1, config, p.STN_BaseProtocol);
                 eve.CreateMySubscipition(C_OP040_1, config);
                 C_OP040_1.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(C_OP040_1_StationOPCServer_DataChangedEvent);
             }
-            C_OP035A= p.StationModelList.Where(item => { return item.StationCode == "C-OP035A_1"; }).First();
+            C_OP035A= p.StationModelList.Where(item => { return item.StationCode == "C-OP035A1"; }).First();
             if (Convert.ToBoolean(C_OP035A.STN_Status))
             {
                 eve.ConnectServer(C_OP035A, config, p.STN_BaseProtocol);
                 eve.CreateMySubscipition(C_OP035A, config);
                 C_OP035A.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(C_OP035A_StationOPCServer_DataChangedEvent);
             }
-            C_OP035B = p.StationModelList.Where(item => { return item.StationCode == "C-OP035A_2"; }).First();
+            C_OP035B = p.StationModelList.Where(item => { return item.StationCode == "C-OP035A2"; }).First();
             if (Convert.ToBoolean(C_OP035B.STN_Status))
             {
                 eve.ConnectServer(C_OP035B, config, p.STN_BaseProtocol);
@@ -288,35 +313,49 @@ namespace OPC_UA_Client_A50
                 OP220.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP220_StationOPCServer_DataChangedEvent);
             }
 
-            OP020_2 = p.StationModelList.Where(item => { return item.StationCode == "OP020A-2"; }).First();
-            if (Convert.ToBoolean(OP020_2.STN_Status))
+            OP020A2_1 = p.StationModelList.Where(item => { return item.StationCode == "OP020A2_1"; }).First();
+            if (Convert.ToBoolean(OP020A2_1.STN_Status))
             {
-                eve.ConnectServer(OP020_2, config, p.STN_BaseProtocol);
-                eve.CreateMySubscipition(OP020_2, config);
-                OP020_2.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP020A_2_StationOPCServer_DataChangedEvent);
+                eve.ConnectServer(OP020A2_1, config, p.STN_BaseProtocol);
+                eve.CreateMySubscipition(OP020A2_1, config);
+                OP020A2_1.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP020A2_1_StationOPCServer_DataChangedEvent);
             }
-            C_OP010B = p.StationModelList.Where(item => { return item.StationCode == "C-OP010A_2"; }).First();
+            OP020A2_2 = p.StationModelList.Where(item => { return item.StationCode == "OP020A2_3"; }).First();
+            if (Convert.ToBoolean(OP020A2_2.STN_Status))
+            {
+                eve.ConnectServer(OP020A2_2, config, p.STN_BaseProtocol);
+                eve.CreateMySubscipition(OP020A2_2, config);
+                OP020A2_2.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP020A2_2_StationOPCServer_DataChangedEvent);
+            }
+            OP020A2_3 = p.StationModelList.Where(item => { return item.StationCode == "OP020A2_4"; }).First();
+            if (Convert.ToBoolean(OP020A2_3.STN_Status))
+            {
+                eve.ConnectServer(OP020A2_3, config, p.STN_BaseProtocol);
+                eve.CreateMySubscipition(OP020A2_3, config);
+                OP020A2_3.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP020A2_3_StationOPCServer_DataChangedEvent);
+            }
+            C_OP010B = p.StationModelList.Where(item => { return item.StationCode == "C-OP010A2"; }).First();
             if (Convert.ToBoolean(C_OP010B.STN_Status))
             {
                 eve.ConnectServer(C_OP010B, config, p.STN_BaseProtocol);
                 eve.CreateMySubscipition(C_OP010B, config);
                 C_OP010B.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(C_OP010B_StationOPCServer_DataChangedEvent);
             }
-            C_OP020B_1 =  p.StationModelList.Where(item => { return item.StationCode == "C-OP020A_2-1"; }).First();
+            C_OP020B_1 =  p.StationModelList.Where(item => { return item.StationCode == "C-OP020A2_1"; }).First();
             if (Convert.ToBoolean(C_OP020B_1.STN_Status))
             {
                 eve.ConnectServer(C_OP020B_1, config, p.STN_BaseProtocol);
                 eve.CreateMySubscipition(C_OP020B_1, config);
                 C_OP020B_1.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(C_OP020B_1_StationOPCServer_DataChangedEvent);
             }
-            C_OP020B_2= p.StationModelList.Where(item => { return item.StationCode == "C-OP020A_2-2"; }).First();
+            C_OP020B_2= p.StationModelList.Where(item => { return item.StationCode == "C-OP020A2_2"; }).First();
             if (Convert.ToBoolean(C_OP020B_2.STN_Status))
             {
                 eve.ConnectServer(C_OP020B_2, config, p.STN_BaseProtocol);
                 eve.CreateMySubscipition(C_OP020B_2, config);
                 C_OP020B_2.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(C_OP020B_2_StationOPCServer_DataChangedEvent);
             }
-            C_OP020B_3 = p.StationModelList.Where(item => { return item.StationCode == "C-OP020A_2-3"; }).First();
+            C_OP020B_3 = p.StationModelList.Where(item => { return item.StationCode == "C-OP020A2_3"; }).First();
             if (Convert.ToBoolean(C_OP020B_3.STN_Status))
             {
                 eve.ConnectServer(C_OP020B_3, config, p.STN_BaseProtocol);
@@ -324,14 +363,14 @@ namespace OPC_UA_Client_A50
                 C_OP020B_3.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(C_OP020B_3_StationOPCServer_DataChangedEvent);
             }
 
-            C_OP030B_2 = p.StationModelList.Where(item => { return item.StationCode == "C-OP030A_2-2"; }).First();
+            C_OP030B_2 = p.StationModelList.Where(item => { return item.StationCode == "C-OP030A2_2"; }).First();
             if (Convert.ToBoolean(C_OP030B_2.STN_Status))
             {
                 eve.ConnectServer(C_OP030B_2, config, p.STN_BaseProtocol);
                 eve.CreateMySubscipition(C_OP030B_2, config);
                 C_OP030B_2.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(C_OP030B_2_StationOPCServer_DataChangedEvent);
             }
-            C_OP030B_3 = p.StationModelList.Where(item => { return item.StationCode == "C-OP030A_2-3"; }).First();
+            C_OP030B_3 = p.StationModelList.Where(item => { return item.StationCode == "C-OP030A2_3"; }).First();
             if (Convert.ToBoolean(C_OP030B_3.STN_Status))
             {
                 eve.ConnectServer(C_OP030B_3, config, p.STN_BaseProtocol);
@@ -339,7 +378,7 @@ namespace OPC_UA_Client_A50
                 C_OP030B_3.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(C_OP030B_3_StationOPCServer_DataChangedEvent);
             }
 
-            C_OP040B_1= p.StationModelList.Where(item => { return item.StationCode == "C-OP040A_2"; }).First();
+            C_OP040B_1= p.StationModelList.Where(item => { return item.StationCode == "C-OP040A2"; }).First();
             if (Convert.ToBoolean(C_OP040B_1.STN_Status))
             {
                 eve.ConnectServer(C_OP040B_1, config, p.STN_BaseProtocol);
@@ -370,6 +409,13 @@ namespace OPC_UA_Client_A50
                 eve.CreateMySubscipition(OP155, config);
                 OP155.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP155_StationOPCServer_DataChangedEvent);
             }
+            OP100B = p.StationModelList.Where(item => { return item.StationCode == "OP100A_2"; }).First();
+            if (Convert.ToBoolean(OP100B.STN_Status))
+            {
+                eve.ConnectServer(OP100B, config, p.STN_BaseProtocol);
+                eve.CreateMySubscipition(OP100B, config);
+                OP100B.StationOPCServer.DataChangedEvent += new Siemens.OpcUA.DataChangedEvent(OP100B_StationOPCServer_DataChangedEvent);
+            }
             btnconn.Enabled = false;
            
             Task.Run(()=> {
@@ -380,10 +426,17 @@ namespace OPC_UA_Client_A50
                 {
                     heartbeat = !heartbeat;
                     OpcHelper.SendHeartBit(heartbeat, OP010, protocol);
-                    OpcHelper.SendHeartBit(heartbeat, OP020, protocol);
-                    OpcHelper.SendHeartBit(heartbeat, OP020_2, protocol);
+                    OpcHelper.SendHeartBit(heartbeat, OP020A1_1, protocol);
+                    OpcHelper.SendHeartBit(heartbeat, OP020A1_2, protocol);
+                    OpcHelper.SendHeartBit(heartbeat, OP020A1_3, protocol);
+                    OpcHelper.SendHeartBit(heartbeat, OP020A2_1, protocol);
+                    OpcHelper.SendHeartBit(heartbeat, OP020A2_2, protocol);
+                    OpcHelper.SendHeartBit(heartbeat, OP020A2_3, protocol);
                     OpcHelper.SendHeartBit(heartbeat, OP040, protocol);
-                    r= OpcHelper.SendHeartBit(heartbeat, OP050, protocol);
+                    OpcHelper.SendHeartBit(heartbeat, OP040_2, protocol);
+                    OpcHelper.SendHeartBit(heartbeat, OP040_3, protocol);
+                    OpcHelper.SendHeartBit(heartbeat, OP040_4, protocol);
+                    r = OpcHelper.SendHeartBit(heartbeat, OP050, protocol);
                     if (r)
                     {
                         Thread.Sleep(1000);
@@ -399,7 +452,6 @@ namespace OPC_UA_Client_A50
                 }
               
             });
-
             Task.Run(()=> {
                 bool heartbeat = true;
                 bool r = true;
@@ -460,7 +512,6 @@ namespace OPC_UA_Client_A50
                 }
                
             });//电芯2段
-
             Task.Run(() => {
                 bool heartbeat = true;
                 bool r = true;
@@ -560,6 +611,7 @@ namespace OPC_UA_Client_A50
                 {
                     heartbeat = !heartbeat;
                     r = OpcHelper.SendHeartBit(heartbeat, OP100A, protocol);
+                    r = OpcHelper.SendHeartBit(heartbeat, OP100B, protocol);
                     if (r)
                     {
                         Thread.Sleep(1000);
@@ -569,7 +621,7 @@ namespace OPC_UA_Client_A50
                     {
                         Thread.Sleep(10000);
                         resendCount++;
-                         LogHelper.Write("OP100-2发送心跳失败", "SendHeart");
+                         LogHelper.Write("OP100发送心跳失败", "SendHeart");
                     }
                 }
             });
@@ -758,29 +810,6 @@ namespace OPC_UA_Client_A50
                 while (resendCount<20)
                 {
                     heartbeat = !heartbeat;
-                    r = OpcHelper.SendHeartBit(heartbeat, OP020_2, protocol);
-                    if (r)
-                    {
-                        Thread.Sleep(1000);
-                        resendCount = 0;
-                    }
-                    else
-                    {
-                        Thread.Sleep(10000);
-                        resendCount++;
-                        LogHelper.Write("OP020A-2发送心跳失败", "SendHeart");
-                    }
-                }
-             
-            });
-
-            Task.Run(() => {
-                bool heartbeat = true;
-                bool r = true;
-                int resendCount = 0;
-                while (resendCount<20)
-                {
-                    heartbeat = !heartbeat;
                     r = OpcHelper.SendHeartBit(heartbeat, OP055, protocol);
                     r = OpcHelper.SendHeartBit(heartbeat, OP135, protocol);
                     r = OpcHelper.SendHeartBit(heartbeat, OP155, protocol);
@@ -798,8 +827,6 @@ namespace OPC_UA_Client_A50
                 }
                
             });
-       
-
         }
 
         private void C_OP035A_StationOPCServer_DataChangedEvent(List<object> clientHandleList, List<DataValue> valueList)
@@ -968,7 +995,8 @@ namespace OPC_UA_Client_A50
                 }
             }
         }
-        private void OP020_StationOPCServer_DataChangedEvent(List<object> clientHandleList, List<Opc.Ua.DataValue> valueList)
+        
+        private void OP020A1_1_StationOPCServer_DataChangedEvent(List<object> clientHandleList, List<Opc.Ua.DataValue> valueList)
         {
             for (int i = 0; i < clientHandleList.Count; i++)
             {
@@ -976,7 +1004,32 @@ namespace OPC_UA_Client_A50
                 bool value = Convert.ToBoolean(valueList[i].Value);
                 if (client != 0 && value)
                 {
-                    eve.ClientDataChanged(clientHandleList, valueList, OP020, protocol);
+                    eve.ClientDataChanged(clientHandleList, valueList, OP020A1_1, protocol);
+                }
+            }
+        }
+        private void OP020A1_2_StationOPCServer_DataChangedEvent(List<object> clientHandleList, List<Opc.Ua.DataValue> valueList)
+        {
+            for (int i = 0; i < clientHandleList.Count; i++)
+            {
+                int client = Convert.ToInt32(clientHandleList[i]);
+                bool value = Convert.ToBoolean(valueList[i].Value);
+                if (client != 0 && value)
+                {
+                    eve.ClientDataChanged(clientHandleList, valueList, OP020A1_2, protocol);
+                }
+            }
+        }
+
+        private void OP020A1_3_StationOPCServer_DataChangedEvent(List<object> clientHandleList, List<Opc.Ua.DataValue> valueList)
+        {
+            for (int i = 0; i < clientHandleList.Count; i++)
+            {
+                int client = Convert.ToInt32(clientHandleList[i]);
+                bool value = Convert.ToBoolean(valueList[i].Value);
+                if (client != 0 && value)
+                {
+                    eve.ClientDataChanged(clientHandleList, valueList, OP020A1_3, protocol);
                 }
             }
         }
@@ -989,6 +1042,42 @@ namespace OPC_UA_Client_A50
                 if (client != 0 && value)
                 {
                     eve.ClientDataChanged(clientHandleList, valueList, OP040, protocol);
+                }
+            }
+        }
+        private void OP040_2_StationOPCServer_DataChangedEvent(List<object> clientHandleList, List<Opc.Ua.DataValue> valueList)
+        {
+            for (int i = 0; i < clientHandleList.Count; i++)
+            {
+                int client = Convert.ToInt32(clientHandleList[i]);
+                bool value = Convert.ToBoolean(valueList[i].Value);
+                if (client != 0 && value)
+                {
+                    eve.ClientDataChanged(clientHandleList, valueList, OP040_2, protocol);
+                }
+            }
+        }
+        private void OP040_3_StationOPCServer_DataChangedEvent(List<object> clientHandleList, List<Opc.Ua.DataValue> valueList)
+        {
+            for (int i = 0; i < clientHandleList.Count; i++)
+            {
+                int client = Convert.ToInt32(clientHandleList[i]);
+                bool value = Convert.ToBoolean(valueList[i].Value);
+                if (client != 0 && value)
+                {
+                    eve.ClientDataChanged(clientHandleList, valueList, OP040_3, protocol);
+                }
+            }
+        }
+        private void OP040_4_StationOPCServer_DataChangedEvent(List<object> clientHandleList, List<Opc.Ua.DataValue> valueList)
+        {
+            for (int i = 0; i < clientHandleList.Count; i++)
+            {
+                int client = Convert.ToInt32(clientHandleList[i]);
+                bool value = Convert.ToBoolean(valueList[i].Value);
+                if (client != 0 && value)
+                {
+                    eve.ClientDataChanged(clientHandleList, valueList, OP040_4, protocol);
                 }
             }
         }
@@ -1124,7 +1213,7 @@ namespace OPC_UA_Client_A50
                 }
             }
         }
-        private void OP020A_2_StationOPCServer_DataChangedEvent(List<object> clientHandleList, List<Opc.Ua.DataValue> valueList)
+        private void OP020A2_1_StationOPCServer_DataChangedEvent(List<object> clientHandleList, List<Opc.Ua.DataValue> valueList)
         {
             for (int i = 0; i < clientHandleList.Count; i++)
             {
@@ -1132,7 +1221,31 @@ namespace OPC_UA_Client_A50
                 bool value = Convert.ToBoolean(valueList[i].Value);
                 if (client != 0 && value)
                 {
-                    eve.ClientDataChanged(clientHandleList, valueList, OP020_2, protocol);
+                    eve.ClientDataChanged(clientHandleList, valueList, OP020A2_1, protocol);
+                }
+            }
+        }
+        private void OP020A2_2_StationOPCServer_DataChangedEvent(List<object> clientHandleList, List<Opc.Ua.DataValue> valueList)
+        {
+            for (int i = 0; i < clientHandleList.Count; i++)
+            {
+                int client = Convert.ToInt32(clientHandleList[i]);
+                bool value = Convert.ToBoolean(valueList[i].Value);
+                if (client != 0 && value)
+                {
+                    eve.ClientDataChanged(clientHandleList, valueList, OP020A2_2, protocol);
+                }
+            }
+        }
+        private void OP020A2_3_StationOPCServer_DataChangedEvent(List<object> clientHandleList, List<Opc.Ua.DataValue> valueList)
+        {
+            for (int i = 0; i < clientHandleList.Count; i++)
+            {
+                int client = Convert.ToInt32(clientHandleList[i]);
+                bool value = Convert.ToBoolean(valueList[i].Value);
+                if (client != 0 && value)
+                {
+                    eve.ClientDataChanged(clientHandleList, valueList, OP020A2_3, protocol);
                 }
             }
         }
@@ -1257,6 +1370,19 @@ namespace OPC_UA_Client_A50
                 }
             }
         }
+
+        private void OP100B_StationOPCServer_DataChangedEvent(List<object> clientHandleList, List<Opc.Ua.DataValue> valueList)
+        {
+            for (int i = 0; i < clientHandleList.Count; i++)
+            {
+                int client = Convert.ToInt32(clientHandleList[i]);
+                bool value = Convert.ToBoolean(valueList[i].Value);
+                if (client != 0 && value)
+                {
+                    eve.ClientDataChanged(clientHandleList, valueList, OP100B, protocol);
+                }
+            }
+        }
         private void BtnClose_Click(object sender, EventArgs e)
         {
             foreach (StationModel item in stationModelsList)
@@ -1313,7 +1439,7 @@ namespace OPC_UA_Client_A50
             {
                 heartbeatZy = !heartbeatZy;
                 OpcHelper.SendHeartBit(heartbeatZy, OP010, protocol);
-                OpcHelper.SendHeartBit(heartbeatZy, OP020, protocol);
+                OpcHelper.SendHeartBit(heartbeatZy, OP020A1_1, protocol);
                 OpcHelper.SendHeartBit(heartbeatZy, OP040, protocol);
                 if (OpcHelper.SendHeartBit(heartbeatZy, OP050, protocol))
                 {
@@ -1338,15 +1464,21 @@ namespace OPC_UA_Client_A50
             return (byte)(b1 * 10 + b2);
         }
 
-        private void Button1_Click_1(object sender, EventArgs e)
+       
+
+        private void Button1_Click(object sender, EventArgs e)
         {
-            BLL.ProdDataBll dd = new BLL.ProdDataBll();
-             var r=  dd.GetFormulaData("7020002761", "OP050A");
-            var r1 = dd.GetFormulaData("7020002761", "OP020A");
-            var r2 = dd.GetFormulaData("7020002761", "C-OP010A");
+            string a = "C-OP020A1_2";
+            string a2 = "OP020A1_1";
+            if (a.Contains("C-OP020A"))
+            {
+                Console.WriteLine("1");
+            }
+
+            if (a2.Contains("C-OP020A"))
+            {
+                Console.WriteLine("2");
+            }
         }
-
-
-
     }
 }

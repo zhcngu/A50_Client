@@ -44,6 +44,10 @@ namespace OPC_UA_Client_A50.OpcClienHelper
            return bArray;
        }
 
+        /// <summary>
+        /// 在240 工位  不管是返修还是正常下线 PLC那边都会把整个tag读出来，发给MES
+        /// </summary>
+        /// <returns></returns>
         public byte[] ReadRepairPlcData()
         {
             string readDb = MyStationModel.RepairDataReadDB;
@@ -55,7 +59,29 @@ namespace OPC_UA_Client_A50.OpcClienHelper
             byte[] bArray = (byte[])valuecoll[0].Value;
             return bArray;
         }
+        public string ReadMaterialNum()
+        {
+            string readDb = MyStationModel.DataReadDB;
+            NodeIdCollection readNode = new NodeIdCollection();
+           
+            readNode.Add(new NodeId(readDb + ".10" + ",b," + 10, ServerIndex));//读取安东物料号
+            DataValueCollection valuecoll = new DataValueCollection();
+            MyServer.ReadValues(readNode, out valuecoll);
+            byte[] bArray = (byte[])valuecoll[0].Value;
+            return ConvertHelper.ByteToString(bArray, 0, 10);
+        }
 
+        public string ReadOperatorNum()
+        {
+            string readDb = MyStationModel.DataReadDB;
+            NodeIdCollection readNode = new NodeIdCollection();
+
+            readNode.Add(new NodeId(readDb + ".362" + ",b," + 10, ServerIndex));//读取安东物料号
+            DataValueCollection valuecoll = new DataValueCollection();
+            MyServer.ReadValues(readNode, out valuecoll);
+            byte[] bArray = (byte[])valuecoll[0].Value;
+            return ConvertHelper.ByteToString(bArray, 0, 10);
+        }
         public  string ReadQRCodeData()
         {
             string readDb = MyStationModel.DataReadDB;
@@ -97,16 +123,26 @@ namespace OPC_UA_Client_A50.OpcClienHelper
        /// <param name="mozusnnum"></param>
        /// <param name="keyValues">配方(key:Item  value:配方值)</param>
        /// <returns></returns>
-        public  bool InitRequestData( string ordrNum, string sncode,string ptcode,string mozuCode, string mozusnnum ,Dictionary<string,byte[]> keyValues)
+        public  bool InitRequestData( string ordrNum, string sncode,string ptcode,string mozuCode, string mozusnnum ,int canwork,int notwork,int ngmodel,int normalwork,int  workfinish,int agluefinish,int bgluefinish,int planqty,Dictionary<string,byte[]> keyValues)
        {
            try
            {
                 string ordnum = ".60,b,40";//工单号地址
                 string prdcode = ".100,b,20";//pack总成物料号
                 string snnum = ".120,b,70";//产品sn号
-                string mzcode = ".190,b,20";
-                string mzsn = ".210,b,70";
+                string mzcode = ".190,b,20";// 模组物料号
+                string mzsn = ".210,b,70";//模组序列号--已经不写了
+                string canWorkItem = ".1,x4";//可加工
+                string notWorkItem = ".1,x5";//不可加工
+                string ngModelItem = ".2,x6";//NG排出
+                string normalWorkItem = ".2,x7";//正常加工
+
+                string workFinishItem = ".1,x7";//当前工位加工完成
+                string aGlueFinishItem = ".3,x0";//A扫码完成
+                string bGlueFinishItem = ".3,x1";//B扫码完成
                 string formulaItem = keyValues.Keys.ToList()[0];//配方的地址
+
+                string orderQtyItem = ".280,i";//订单数量
 
                 string dbnum = MyStationModel.DataWriteDB;//写数据的DB块
                 NodeIdCollection writeNodecoll = new NodeIdCollection();
@@ -116,7 +152,18 @@ namespace OPC_UA_Client_A50.OpcClienHelper
                 writeNodecoll.Add(new NodeId(dbnum + mzcode, ServerIndex));//模组物料号
                 writeNodecoll.Add(new NodeId(dbnum + mzsn, ServerIndex));//模组物料号
 
+                writeNodecoll.Add(new NodeId(dbnum + canWorkItem, ServerIndex));//可加工
+                writeNodecoll.Add(new NodeId(dbnum + notWorkItem, ServerIndex));//不可加工
+                writeNodecoll.Add(new NodeId(dbnum + ngModelItem, ServerIndex));//ng排料
+                writeNodecoll.Add(new NodeId(dbnum + normalWorkItem, ServerIndex));//正常加工
+
+                writeNodecoll.Add(new NodeId(dbnum + workFinishItem, ServerIndex));//本工位加工完成
+                writeNodecoll.Add(new NodeId(dbnum + aGlueFinishItem, ServerIndex));//A扫码完成
+                writeNodecoll.Add(new NodeId(dbnum + bGlueFinishItem, ServerIndex));//B扫码完成
+
                 writeNodecoll.Add(new NodeId(dbnum + formulaItem, ServerIndex));//配方
+
+                writeNodecoll.Add(new NodeId(dbnum + orderQtyItem, ServerIndex));//订单数量
 
                 DataValueCollection values = new DataValueCollection();
                 byte[] ordnumbuff = ConvertHelper.StringToByteArray(ordrNum, 40);
@@ -125,7 +172,18 @@ namespace OPC_UA_Client_A50.OpcClienHelper
                 byte[] mzcodebuff = ConvertHelper.StringToByteArray(mozuCode, 20);
                 byte[] mzsnnumbuff = ConvertHelper.StringToByteArray(mozusnnum, 70);
 
+                bool canworkValue = Convert.ToBoolean(canwork);
+                bool notworkValue = Convert.ToBoolean(notwork);
+                bool ngmodelValue = Convert.ToBoolean(ngmodel);
+                bool normalVlue = Convert.ToBoolean(normalwork);
+
+                bool workFinishValue = Convert.ToBoolean(workfinish);
+                bool aGlueFinishValue = Convert.ToBoolean(agluefinish);
+                bool bGlueFinishValue = Convert.ToBoolean(bgluefinish);
+
                 byte[] formulaValue = keyValues[formulaItem];//配方值
+
+                short qty = (short)planqty;
 
                 values.Add(new DataValue(ordnumbuff));
                 values.Add(new DataValue(ptcocebuff));
@@ -133,7 +191,18 @@ namespace OPC_UA_Client_A50.OpcClienHelper
                 values.Add(new DataValue(mzcodebuff));
                 values.Add(new DataValue(mzsnnumbuff));
 
+                values.Add(new DataValue(canworkValue));
+                values.Add(new DataValue(notworkValue));
+                values.Add(new DataValue(ngmodelValue));
+                values.Add(new DataValue(normalVlue));
+
+
+                values.Add(new DataValue(workFinishValue));
+                values.Add(new DataValue(aGlueFinishValue));
+                values.Add(new DataValue(bGlueFinishValue));
+
                 values.Add(new DataValue(formulaValue));
+                values.Add(new DataValue(qty));//数量
 
                 StatusCodeCollection resultCodes;
                 MyServer.WriteValues(writeNodecoll, values, out resultCodes);
@@ -437,7 +506,7 @@ namespace OPC_UA_Client_A50.OpcClienHelper
             {
                 NodeIdCollection readdownNode = new NodeIdCollection();
                 string comDB = MyStationModel.DataWriteDB;//握手信号交互DB块
-                readdownNode.Add(new NodeId(comDB + MyBaseProtocol.MES_PLC_Ready, ServerIndex));
+                readdownNode.Add(new NodeId(comDB + MyBaseProtocol.MES_PLC_CellRemoveOK, ServerIndex));
                 DataValueCollection values = new DataValueCollection();
 
                 values.Add(new DataValue(true));
@@ -463,6 +532,47 @@ namespace OPC_UA_Client_A50.OpcClienHelper
                 // string comDB = MyStationModel.CommunicationDB;//握手信号交互DB块
                 string comDB = MyStationModel.DataWriteDB;//握手信号交互DB块
                 readdownNode.Add(new NodeId(comDB + MyBaseProtocol.MES_PLC_UniqNG, ServerIndex));
+                DataValueCollection values = new DataValueCollection();
+
+                values.Add(new DataValue(true));
+                StatusCodeCollection codes;
+                MyServer.WriteValues(readdownNode, values, out codes);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Write(ex, "system");
+            }
+        }
+
+
+        public  void SendMaterialPullOk()
+        {
+            try
+            {
+                NodeIdCollection readdownNode = new NodeIdCollection();
+                // string comDB = MyStationModel.CommunicationDB;//握手信号交互DB块
+                string comDB = MyStationModel.DataWriteDB;//握手信号交互DB块
+                readdownNode.Add(new NodeId(comDB + MyBaseProtocol.MES_PLC_MaterialPullOK, ServerIndex));
+                DataValueCollection values = new DataValueCollection();
+
+                values.Add(new DataValue(true));
+                StatusCodeCollection codes;
+                MyServer.WriteValues(readdownNode, values, out codes);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Write(ex, "system");
+            }
+        }
+
+        public void SendMaterialPullNG()
+        {
+            try
+            {
+                NodeIdCollection readdownNode = new NodeIdCollection();
+                // string comDB = MyStationModel.CommunicationDB;//握手信号交互DB块
+                string comDB = MyStationModel.DataWriteDB;//握手信号交互DB块
+                readdownNode.Add(new NodeId(comDB + MyBaseProtocol.MES_PLC_MaterialPullNG, ServerIndex));
                 DataValueCollection values = new DataValueCollection();
 
                 values.Add(new DataValue(true));

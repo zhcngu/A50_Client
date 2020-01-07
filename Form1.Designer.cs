@@ -38,7 +38,7 @@
             // 
             this.textBox1.Location = new System.Drawing.Point(142, 119);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(304, 21);
+            this.textBox1.Size = new System.Drawing.Size(269, 21);
             this.textBox1.TabIndex = 5;
             this.textBox1.Text = "opc.tcp://localhost:55101";
             // 
@@ -54,7 +54,7 @@
             // 
             // btnconn
             // 
-            this.btnconn.Location = new System.Drawing.Point(359, 190);
+            this.btnconn.Location = new System.Drawing.Point(316, 190);
             this.btnconn.Name = "btnconn";
             this.btnconn.Size = new System.Drawing.Size(84, 30);
             this.btnconn.TabIndex = 3;
@@ -64,19 +64,19 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(375, 260);
+            this.button1.Location = new System.Drawing.Point(316, 273);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(84, 30);
             this.button1.TabIndex = 6;
-            this.button1.Text = "ceshi ";
+            this.button1.Text = "测试";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.Button1_Click_1);
+            this.button1.Click += new System.EventHandler(this.Button1_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(611, 381);
+            this.ClientSize = new System.Drawing.Size(512, 401);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.btnClose);

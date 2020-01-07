@@ -49,8 +49,8 @@ namespace OPC_UA_Client_A50.BLL
                             sb2.AppendFormat("insert into [dbo].[tbDaySerialNumber] (YearTag,MonthTag,DayTag,SearialNumber) values ('{0}','{1}','{2}','{3}') ", DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 1);
                             sqlHelper.ExecNonQuery(sb2.ToString());
                         }
-                        UpdateOrderStatus(ordid);
-                        return true;
+                         bool res= UpdateOrderStatus(ordid);
+                        return res;
                     }
                     else
                     {
@@ -78,7 +78,7 @@ namespace OPC_UA_Client_A50.BLL
             DataTable ordtb = sqlHelper.GetDataTb(sqlstr);
             if (ordtb.Rows.Count > 0)
             {
-                int planCount = Convert.ToInt32(ordtb.Rows[0]["ActualQty"]);
+                int planCount = Convert.ToInt32(ordtb.Rows[0]["PackCount"]);
                 int onlineCount = Convert.ToInt32(ordtb.Rows[0]["OnlineCount"]);
                 int r;
                 if (onlineCount + 1 < planCount)     //上线数量99 计划数量100
@@ -134,17 +134,17 @@ namespace OPC_UA_Client_A50.BLL
             }
            
         }
-        public DataTable GetOrderDataTable(string stncode,string keticode)
+        public DataTable GetOrderDataTable(string stncode,string  frontstncode,string keticode)
         {
             DataTable tb;
             string sqlstr;
             if (stncode=="OP010A")
             {
-                sqlstr = "exec [SP_GetCurrendOrder] '" + stncode + "',''";
+                sqlstr = "exec [SP_GetCurrendOrder]'" + stncode + "','" + frontstncode + "',''";
             }
             else
             {
-                sqlstr = "exec [SP_GetCurrendOrder] '" + stncode + "','"+ keticode + "'";
+                sqlstr = "exec [SP_GetCurrendOrder] '" + stncode + "','"+ frontstncode + "','"+ keticode + "'";
             }
             tb = sqlHelper.GetDataTb(sqlstr);
             return tb;
@@ -172,15 +172,15 @@ namespace OPC_UA_Client_A50.BLL
         public DataTable GetBomByFormula(string stncode, string partnum)
         {
             StringBuilder sb = new StringBuilder();
-            if (stncode=="OP100A")
-            {
-                sb.AppendFormat("select * from VI_Formula where ComponentPartNo='{0}' and [StationCode]  like '%{1}%' ", partnum, "OP100");
-            }
-            else
-            {
-                sb.AppendFormat("select * from VI_Formula where ComponentPartNo='{0}' and [StationCode] = '{1}' ", partnum,stncode);
-            }
-           
+            //if (stncode=="OP100A")
+            //{
+            //    sb.AppendFormat("select * from VI_Formula where ComponentPartNo='{0}' and [StationCode]  like '%{1}%' ", partnum, "OP100");
+            //}
+            //else
+            //{
+            //    sb.AppendFormat("select * from VI_Formula where ComponentPartNo='{0}' and [StationCode] = '{1}' ", partnum,stncode);
+            //}
+            sb.AppendFormat("select * from VI_Formula where ComponentPartNo='{0}' and [StationCode] = '{1}' ", partnum, stncode);
             return sqlHelper.GetDataTb(sb.ToString());
         }
 
@@ -191,9 +191,30 @@ namespace OPC_UA_Client_A50.BLL
         /// <returns></returns>
         public  bool CheckUniqueness( string  partcode)
         {
-            string sqlstr = " select  count(1)  from tblComponentPartData  where ComponentPartBarcode='" + partcode + "'";
+           
+            string sqlstr = " select  count(1)  from tblComponentPartData  where ComponentPartBarcode='" + partcode + "' and  IsDelete!=1";
             object  res= sqlHelper.GetObjectVal(sqlstr);
             if (Convert.ToInt32(res)>0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// 校验电芯唯一性
+        /// </summary>
+        /// <param name="batteryCode"></param>
+        /// <returns></returns>
+        public bool CheckBatteryUniqueness(string batteryCode)
+        {
+
+            string sqlstr = " select  count(1)  from tblPassStationData  where SerialNumber='" + batteryCode + "' and  IsDelete!=1";
+            object res = sqlHelper.GetObjectVal(sqlstr);
+            if (Convert.ToInt32(res) > 0)
             {
                 return false;
             }
@@ -235,7 +256,7 @@ namespace OPC_UA_Client_A50.BLL
             Dictionary<string, byte[]> dic = new Dictionary<string, byte[]>();
             if (stncode.Equals("OP050A"))//pack段上线工位
             {
-                string sqlstr1 = "select StationName,StationSeq,LineCode from tblStation  where LineCode='PACK'  and StationName  not in ('OP010A','OP020A','OP020A-2','OP030M','OP040A') ORDER BY StationSeq ";
+                string sqlstr1 = "select StationName,StationSeq,LineCode from tblStation  where LineCode='PACK'  and StationName  not in ('OP010A','OP020A1_1','OP020A1_3','OP020A1_4','OP020A2_1','OP020A2_3','OP020A2_4','OP030M','OP040A_1','OP040A_2','OP040A_3','OP040A_4') ORDER BY StationSeq ";
                 DataTable packstntb = sqlHelper.GetDataTb(sqlstr1);//把所有工位查出来
                 sqlstr = "select [PartNo],[StationCode],[StationSeq],[WorkStepNo],[Operation],[ProgramNo],[OperationDescription] from VI_Formula  where [PartNo]='" + ptcode + "'  order by  StationSeq ,WorkStepNo  ";
                 itemName = ".292,b,192";
@@ -274,14 +295,22 @@ namespace OPC_UA_Client_A50.BLL
                 dic[itemName] = buff;
                 return dic;
             }
-            else if (stncode.Contains("C-OP010"))
+            else if (stncode.Contains("C-OP010A1")||stncode.Contains("C-OP010A2"))
             {
-                string sqlstr1 = "select StationName,StationSeq,LineCode from tblStation  where LineCode='DX'  ORDER BY StationSeq ";
+                string sqlstr1 = "";
+                if (stncode.Contains("C-OP010A1"))
+                {
+                    sqlstr1 = "select StationName,StationSeq,LineCode from tblStation  where LineCode='DX1'  ORDER BY StationSeq ";
+                }
+                else
+                {
+                    sqlstr1 = "select StationName,StationSeq,LineCode from tblStation  where LineCode='DX2'  ORDER BY StationSeq ";
+                }
                 DataTable packstntb = sqlHelper.GetDataTb(sqlstr1);//把所有工位查出来
                 sqlstr = "select [FormulaID],[PartNo],[BatteryTypeName],[FormulaNo],[StationCode],[StationSeq],[WorkStepNo],[Operation],[OperationDescription],[ComponentPartCount],[ComponentPartName],[ProgramNo],[ComponentPartNo],[ComponentPartOnly] from VI_Formula  where [PartNo]='" + ptcode + "'  order by  StationCode ,WorkStepNo  ";
                 DataTable formutb = sqlHelper.GetDataTb(sqlstr);
-                itemName = ".292,b,40";
-                buff = new byte[40];
+                itemName = ".292,b,56";
+                buff = new byte[56];
                 #region   配方
                 int j = 0;
                 for (int i = 0; i < packstntb.Rows.Count; i++)
@@ -305,12 +334,11 @@ namespace OPC_UA_Client_A50.BLL
             }
             else
             {
-                //sqlstr = "select * from VI_Formula  where  [PartNo]='" + ptcode + "'  and  StationCode ='"+ stncode + "' and  ProgramNo is  not  null   order by  StationCode ,WorkStepNo";
+              
                 sqlstr = "select * from VI_Formula  where  [PartNo]='" + ptcode + "'  and  StationCode ='" + stncode + "'  order by  StationCode ,WorkStepNo";
                 itemName = ".292,b,8";
                 buff = new byte[8];
                  DataTable formutb = sqlHelper.GetDataTb(sqlstr);
-               
                 for (int i = 0; i < formutb.Rows.Count; i++)
                 {
                     byte programNum;
@@ -347,42 +375,62 @@ namespace OPC_UA_Client_A50.BLL
 
 
         /// <summary>
-        /// 获取电芯OCV测试结果
+        /// 获取电芯OCV测试K值结果
         /// </summary>
         /// <param name="dianxin">电芯二维码</param>
         /// <param name="vol">测试电压值</param>
         /// <returns></returns>
-        public int GetDianXinOCVTestResult(string  dianxin,float  vol)
+        public int GetDianXinOCVTestResult(string  stncode,string  dianxin,float  vol)
         {
-            string sqlGetkValue = "exec SP_CalcOCVKvalue '" + dianxin + "','" + vol + "'";
-            DataTable  tb=  sqlHelper.GetDataTb(sqlGetkValue);
-            if (tb != null)
+            string sqlStr = "select PartNo,StationCode,Operation, MaxValue1,MinValue1,MaxValue2,MinValue3,MaxValue3,MinValue3 from  [VI_Formula]   where  StationCode ='"+stncode+"' AND  Operation='OCV测试'";
+            DataTable tempTable = sqlHelper.GetDataTb(sqlStr);
+            if (tempTable.Rows.Count<=0)
             {
-                int dianxinCount = Convert.ToInt32(tb.Rows[0]["DianXinCount"]);
-                if (dianxinCount > 1)
-                {
-                    return 25;//电芯二维码来料重复
-                }
-                else if (dianxinCount < 1)
-                {
-                    return 24;//电芯二维码不在库里
-                }
-                else
-                {
-                    if (tb.Rows[0]["Result"].ToString() == "1")
-                    {
-                        return 0;
-                    }
-                    else
-                    {
-                        return 26;//ocv测试NG
-                    }
-                }
+                return 28;//未获取到配方信息
             }
             else
             {
-                return 9;
+                float tempMax = Convert.ToSingle(tempTable.Rows[0]["MaxValue1"]);
+                float tempMin = Convert.ToSingle(tempTable.Rows[0]["MinValue1"]);
+                if (tempMin<= vol && vol<= tempMax)//电压在配方范围里
+                {
+                    string sqlGetkValue = "exec SP_CalcOCVKvalue  '"+stncode+"' , '" + dianxin + "','" + vol + "'";
+                    DataTable tb = sqlHelper.GetDataTb(sqlGetkValue);
+                    if (tb != null)
+                    {
+                        int dianxinCount = Convert.ToInt32(tb.Rows[0]["DianXinCount"]);
+                        if (dianxinCount > 1)
+                        {
+                            return 25;//电芯二维码来料重复
+                        }
+                        else if (dianxinCount < 1)
+                        {
+                            return 24;//电芯二维码不在库里
+                        }
+                        else
+                        {
+                            if (tb.Rows[0]["Result"].ToString() == "1")
+                            {
+                                return 0;
+                            }
+                            else
+                            {
+                                return 26;//ocv测试NG
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return 9;//查数据库失败
+                    }
+                }
+                else
+                {
+                    return 14;//数据有效性不通过（不在配方范围内）
+                }
             }
+
+           
         }
     }
 }
